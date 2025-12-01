@@ -1,7 +1,7 @@
-#' Retrieves genome reference file name 
-#' 
+#' Retrieves genome reference file name
+#'
 #' Helper function to extract genome reference file name from fragment file header.
-#' 
+#'
 #' @param fragment.file String specifying fragment file name
 #' @return Named string vector
 #' @author Natalie Fox
@@ -10,7 +10,7 @@
 #' download.file(
 #' paste0("https://cf.10xgenomics.com/samples/cell-arc/1.0.0/",
 #' "pbmc_granulocyte_sorted_10k/",
-#' "pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz"), 
+#' "pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz"),
 #' file.path(tempdir(), "pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz")
 #' )
 #' fragment.file <- file.path(tempdir(), "pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz")
@@ -18,7 +18,7 @@
 #' }
 #'
 #' @export
-extractGenomeRefFilenameFromFragmentFile <- function(fragment.file){
+extractGenomeRefFilenameFromFragmentFile <- function(fragment.file) {
   handle <- gzfile(fragment.file, open = "rb")
   on.exit(close(handle))
   all.headers <- character(0)
