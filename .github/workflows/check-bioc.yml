@@ -179,8 +179,10 @@ jobs:
           ## Required for tcltk
           brew install xquartz --cask
 
-          ## Force link openssl
-          brew link openssl --force
+          # Configure OpenSSL environment
+          echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
+          echo "CFLAGS=-I$(brew --prefix openssl@3)/include" >> $GITHUB_ENV
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
