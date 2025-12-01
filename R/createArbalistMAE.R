@@ -53,6 +53,23 @@
 #' @importFrom SingleCellExperiment altExp<-
 #' @importFrom SummarizedExperiment colData colData<-
 #' @importFrom BiocParallel bpparam
+#'
+#' @examples
+#' # Create mock data
+#' f <- tempfile(fileext=".tsv.gz")
+#' seq_lengths <- c(chr1=1000)
+#' mockFragmentFile(f, seq_lengths, 50, LETTERS[1:5])
+#' h5 <- tempfile(fileext=".h5")
+#' rhdf5::h5createFile(h5)
+#'
+#' mae <- createArbalistMAE(
+#'     sample.names = "Sample1",
+#'     fragment.files = f,
+#'     filtered.feature.matrix.files = h5,
+#'     seq.lengths = seq_lengths,
+#'     output.dir = tempdir()
+#' )
+#'
 #' @export
 createArbalistMAE <- function(
   sample.names,

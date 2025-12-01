@@ -6,7 +6,7 @@
 #' @return Named string vector
 #' @author Natalie Fox
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' download.file(
 #' paste0("https://cf.10xgenomics.com/samples/cell-arc/1.0.0/",
 #' "pbmc_granulocyte_sorted_10k/",

@@ -12,6 +12,18 @@
 #'   duplicate rows with the same mcol.name
 #'
 #' @importFrom SummarizedExperiment mcols assay
+#' @return A \linkS4class{SummarizedExperiment} with duplicate features resolved.
+#' @examples
+#' library(SummarizedExperiment)
+#' 
+#' # Create a mock SummarizedExperiment with duplicates
+#' counts <- matrix(1:10, ncol=2)
+#' rdata <- DataFrame(name = c("GeneA", "GeneA", "GeneB", "GeneC", "GeneC"))
+#' se <- SummarizedExperiment(assays=list(counts=counts), rowData=rdata)
+#' 
+#' # Filter duplicates, keeping the row with the max sum
+#' se_filtered <- filterDuplicateFeatures(se, mcol.name="name", selection.metric=max)
+#' 
 #' @export
 filterDuplicateFeatures <- function(
   se,

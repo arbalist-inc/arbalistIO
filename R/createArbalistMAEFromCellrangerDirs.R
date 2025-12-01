@@ -12,6 +12,27 @@
 #'
 #' @author Natalie Fox
 #' @export
+#'
+#' @examples
+#' # Mock a Cell Ranger directory structure
+#' tmpdir <- tempfile()
+#' dir.create(tmpdir)
+#' sample_dir <- file.path(tmpdir, "Sample1")
+#' dir.create(sample_dir)
+#' 
+#' # Mock files
+#' seq_lengths <- c(chr1 = 1000)
+#' mockFragmentFile(file.path(sample_dir, "fragments.tsv.gz"), 
+#'                  seq_lengths, 10, cell.names = LETTERS[1:5])
+#' # Mock feature matrix (empty h5 for test)
+#' rhdf5::h5createFile(file.path(sample_dir, "filtered_feature_bc_matrix.h5"))
+#' 
+#' # Create MAE
+#' mae <- createArbalistMAEFromCellrangerDirs(
+#'     cellranger.res.dirs = c(Sample1 = sample_dir),
+#'     output.dir = tempdir(),
+#'     seq.lengths = seq_lengths
+#' )
 createArbalistMAEFromCellrangerDirs <- function(
   cellranger.res.dirs,
   output.dir = tempdir(),

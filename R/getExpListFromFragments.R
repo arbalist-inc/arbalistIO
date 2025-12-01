@@ -21,7 +21,6 @@
 #' @author Natalie Fox
 #' @importFrom SingleCellExperiment mainExpName<-
 #' @importFrom BiocParallel bptry bplapply bpparam
-#' @export
 getExpListFromFragments <- function(
   fragment.files,
   output.dir = tempdir(),
