@@ -179,6 +179,9 @@ jobs:
           ## Required for tcltk
           brew install xquartz --cask
 
+          ## Force link openssl
+          brew link openssl --force
+
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
         run: |
