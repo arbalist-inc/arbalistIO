@@ -35,12 +35,12 @@ createMultiomeRNASCE <- function(
     sample.name <- sample.names[y]
     
     # load the Cell Ranger results (per sample matrix)
-    barcodes <- h5read(feature.matrix, "/matrix/barcodes")
-    data <- h5read(feature.matrix, "/matrix/data")
-    indices <- h5read(feature.matrix, "/matrix/indices")
-    indptr <- h5read(feature.matrix, "/matrix/indptr")
-    shape <- h5read(feature.matrix, "/matrix/shape")
-    features <- h5read(feature.matrix, "/matrix/features")
+    barcodes <- as.vector(h5read(feature.matrix, "/matrix/barcodes"))
+    data <- as.vector(h5read(feature.matrix, "/matrix/data"))
+    indices <- as.vector(h5read(feature.matrix, "/matrix/indices"))
+    indptr <- as.vector(h5read(feature.matrix, "/matrix/indptr"))
+    shape <- as.vector(h5read(feature.matrix, "/matrix/shape"))
+    features <- as.vector(h5read(feature.matrix, "/matrix/features"))
     
     sparse.feature.matrix <- sparseMatrix(
       i = indices, 
