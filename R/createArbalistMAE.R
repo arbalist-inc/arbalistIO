@@ -112,32 +112,32 @@ createArbalistMAE <- function(
   barcode.anno <- NULL
   for (i in seq_along(filtered.feature.matrix.files)) {
     filtered.file <- filtered.feature.matrix.files[i]
-    if (sample.names[i] %in% names(barcodes.list)) {
-      barcodes.list[[paste0(
-        sample.names[i],
-        '_',
-        length(grep(sample.names[i], names(barcodes.list))) + 1
-      )]] <- h5read(filtered.feature.matrix.files[i], '/matrix/barcodes')
+    # Check if we can read barcodes
+    try_barcodes <- try(h5read(filtered.feature.matrix.files[i], '/matrix/barcodes'),
+                        silent = TRUE)
+    if (inherits(try_barcodes, "try-error")) {
+      barcodes.list[[sample.names[i]]] <- character(0)
     } else {
-      barcodes.list[[sample.names[i]]] <- h5read(
-        filtered.feature.matrix.files[i],
-        '/matrix/barcodes'
-      )
+      if (sample.names[i] %in% names(barcodes.list)) {
+        barcodes.list[[paste0(sample.names[i], '_', length(grep(
+          sample.names[i], names(barcodes.list)
+        )) + 1)]] <- try_barcodes
+      } else {
+        barcodes.list[[sample.names[i]]] <- try_barcodes
+      }
     }
+    
+    if (!is.null(barcode.annotation.files)) {
     barcode.anno.file <- barcode.annotation.files[i]
-    if (!is.null(barcode.anno.file) && any(file.exists(barcode.anno.file))) {
-      per.sample.barcodes <- read.csv(barcode.anno.file[file.exists(
-        barcode.anno.file
-      )])
-      rownames(per.sample.barcodes) <- paste0(
-        sample.names[i],
-        '#',
-        per.sample.barcodes$barcode
-      )
+      if (!is.null(barcode.anno.file) &&
+          any(file.exists(barcode.anno.file))) {
+        per.sample.barcodes <- read.csv(barcode.anno.file[file.exists(barcode.anno.file)])
+        rownames(per.sample.barcodes) <- paste0(sample.names[i] , '#', per.sample.barcodes$barcode)
       if (is.null(barcode.anno)) {
         barcode.anno <- per.sample.barcodes
       } else {
         barcode.anno <- rbind(barcode.anno, per.sample.barcodes)
+        }
       }
     }
   }
@@ -158,14 +158,17 @@ createArbalistMAE <- function(
   )
 
   # Add a SingleCellExperiment for RNA results if this is a multiome result
-  if (
-    is.null(multiome) &&
-      any(grep("filtered_feature_bc_matrix.h5", filtered.feature.matrix.files))
-  ) {
+  if (is.null(multiome)) {
+    if (any(grepl(
+      "filtered_feature_bc_matrix.h5",
+      filtered.feature.matrix.files
+    ))) {
     multiome <- TRUE
   } else {
     multiome <- FALSE
   }
+  }
+  
   if (multiome) {
     all.exp[['GeneExpressionMatrix']] <- createMultiomeRNASCE(
       h5.files = filtered.feature.matrix.files,
@@ -176,7 +179,7 @@ createArbalistMAE <- function(
 
   # If asked for, use alternative experiments for the MAE structure
   if (use.alt.exp) {
-    if (!main.exp.name %in% names(all.exp) & length(exp.list) > 1) {
+    if (!main.exp.name %in% names(all.exp) & length(all.exp) > 1) {
       cell.union <- colnames(all.exp[[1]])
       cell.intersect <- colnames(all.exp[[1]])
       for (i in 2:length(all.exp)) {
@@ -185,15 +188,15 @@ createArbalistMAE <- function(
       }
       if (length(cell.union) == length(cell.intersect)) {
         # Convert the list of SCEs to main/alternative experiments in one SCE
-        main.sce <- exp.list[[main.exp.name]]
-        for (matrix.name in setdiff(names(exp.list), main.exp.name)) {
-          altExp(main.sce, matrix.name) <- exp.list[[matrix.name]]
+        main.sce <- all.exp[[main.exp.name]]
+        for (matrix.name in setdiff(names(all.exp), main.exp.name)) {
+          altExp(main.sce, matrix.name) <- all.exp[[matrix.name]]
         }
         mainExpName(main.sce) <- main.exp.name
-        if ('GeneExpressionMatrix' %in% names(exp.list)) {
-          exp.list <- list(multiome = main.sce)
+        if ('GeneExpressionMatrix' %in% names(all.exp)) {
+          all.exp <- list(multiome = main.sce)
         } else {
-          exp.list <- list(atac = main.sce)
+          all.exp <- list(atac = main.sce)
         }
       }
     }
@@ -257,19 +260,19 @@ createArbalistMAE <- function(
 
   # Add sample summary information to the MAE colData
   summary.info.all <- NULL
+  if (!is.null(sample.annotation.files)) {
   for (i in seq_along(sample.annotation.files)) {
     summary.file.name <- sample.annotation.files[i]
     if (file.exists(summary.file.name)) {
       summary.info <- read.csv(summary.file.name)
       rownames(summary.info) <- summary.info$Sample.ID
-      if (
-        !is.null(summary.info.all) &&
-          ncol(summary.info.all) != ncol(summary.info)
-      ) {
+        if (!is.null(summary.info.all) &&
+            ncol(summary.info.all) != ncol(summary.info)) {
         summary.info.all <- NULL
         break
       }
       summary.info.all <- rbind(summary.info.all, summary.info)
+      }
     }
   }
   if (!is.null(summary.info.all)) {
