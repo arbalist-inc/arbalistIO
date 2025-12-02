@@ -319,7 +319,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         uses: JamesIves/github-pages-deploy-action@releases/v4
         with:
-          clean: false
+          clean: true
           branch: gh-pages
           folder: docs
 
