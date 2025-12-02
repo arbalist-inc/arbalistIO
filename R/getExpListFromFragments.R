@@ -183,7 +183,7 @@ getExpListFromFragments <- function(fragment.files,
 #' grs <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:5, width=1))
 #'
 #' sce <- getSCEFromH5List(h5.list, grs)
-#' 
+#'
 getSCEFromH5List <- function(h5.res.list, grs) {
   # Combined the per sample results into one matrix
   if (length(h5.res.list) == 1) {

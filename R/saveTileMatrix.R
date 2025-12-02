@@ -125,7 +125,7 @@ saveTileMatrix <- function(fragment.file,
   handle <- gzfile(file, open = "rb")
   on.exit(close(handle))
   all.headers <- character(0)
-
+  
   chunk <- 100
   repeat {
     lines <- readLines(handle, n = chunk)
@@ -135,7 +135,7 @@ saveTileMatrix <- function(fragment.file,
       break
     }
   }
-
+  
   field <- sub("=.*", "", all.headers)
   value <- sub("[^=]+=", "", all.headers)
   split(value, field)

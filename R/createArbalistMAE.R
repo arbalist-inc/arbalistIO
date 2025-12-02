@@ -59,7 +59,7 @@
 #' f <- tempfile(fileext=".tsv.gz")
 #' seq_lengths <- c(chr1=1000)
 #' mockFragmentFile(f, seq_lengths, 50, LETTERS[1:5])
-#' 
+#'
 #' # Create a valid mock feature matrix (H5)
 #' h5 <- tempfile(fileext=".h5")
 #' rhdf5::h5createFile(h5)
@@ -74,18 +74,18 @@
 #' rhdf5::h5write(as.integer(c(0,1,2,3,4,5)), h5, "matrix/indptr", createnewfile = FALSE)
 #' # Shape: 1 feature (row), 5 cells (columns)
 #' rhdf5::h5write(as.integer(c(1,5)), h5, "matrix/shape", createnewfile = FALSE)
-#' 
+#'
 #' rhdf5::h5createGroup(h5, "matrix/features")
 #' rhdf5::h5write("GENE1", h5, "matrix/features/id", createnewfile = FALSE)
 #' rhdf5::h5write("Gene1", h5, "matrix/features/name", createnewfile = FALSE)
 #' rhdf5::h5write("Gene Expression", h5, "matrix/features/feature_type", createnewfile = FALSE)
 #' rhdf5::h5write("chr1:1-100", h5, "matrix/features/interval", createnewfile = FALSE)
 #' rhdf5::h5write("Genome1", h5, "matrix/features/genome", createnewfile = FALSE)
-#' 
+#'
 #' # Use a unique temp directory for this example
 #' example_dir <- tempfile()
 #' dir.create(example_dir)
-#' 
+#'
 #' # Force SerialParam to avoid HDF5 threading issues during examples/checks
 #' mae <- createArbalistMAE(
 #'     sample.names = "Sample1",

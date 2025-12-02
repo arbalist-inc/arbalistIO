@@ -18,7 +18,7 @@ Helper function to extract genome reference file name from fragment file header.
 \examples{
 # Mock a fragment file
 f <- tempfile(fileext=".tsv.gz")
-mockFragmentFile(f, c(chr1=1000), 10, LETTERS[1:5], 
+mockFragmentFile(f, c(chr1=1000), 10, LETTERS[1:5],
                  comments=c("reference_path=/path/to/ref"))
 
 extractGenomeRefFilenameFromFragmentFile(f)

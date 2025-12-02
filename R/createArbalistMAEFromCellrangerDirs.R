@@ -19,12 +19,12 @@
 #' dir.create(tmpdir)
 #' sample_dir <- file.path(tmpdir, "Sample1")
 #' dir.create(sample_dir)
-#' 
+#'
 #' # Mock files
 #' seq_lengths <- c(chr1 = 1000)
-#' mockFragmentFile(file.path(sample_dir, "fragments.tsv.gz"), 
+#' mockFragmentFile(file.path(sample_dir, "fragments.tsv.gz"),
 #'                  seq_lengths, 10, cell.names = LETTERS[1:5])
-#' 
+#'
 #' # Create a valid mock feature matrix (H5)
 #' h5 <- file.path(sample_dir, "filtered_feature_bc_matrix.h5")
 #' rhdf5::h5createFile(h5)
@@ -40,7 +40,7 @@
 #' rhdf5::h5write("Gene Expression", h5, "matrix/features/feature_type", createnewfile = FALSE)
 #' rhdf5::h5write("chr1:1-100", h5, "matrix/features/interval", createnewfile = FALSE)
 #' rhdf5::h5write("Genome1", h5, "matrix/features/genome", createnewfile = FALSE)
-#' 
+#'
 #' # Create MAE, using SerialParam to avoid thread errors during checks
 #' mae <- createArbalistMAEFromCellrangerDirs(
 #'     cellranger.res.dirs = c(Sample1 = sample_dir),
