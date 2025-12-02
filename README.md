@@ -7,7 +7,7 @@
 You can install the development version:
 
 ```r
-BiocManager::install("Jfortin1/arbalistIO")
+BiocManager::install("arbalist-inc/arbalistIO")
 ```
 
 ## Usage
