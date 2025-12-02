@@ -16,16 +16,12 @@ Named string vector
 Helper function to extract genome reference file name from fragment file header.
 }
 \examples{
-\dontrun{
-download.file(
-paste0("https://cf.10xgenomics.com/samples/cell-arc/1.0.0/",
-"pbmc_granulocyte_sorted_10k/",
-"pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz"), 
-file.path(tempdir(), "pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz")
-)
-fragment.file <- file.path(tempdir(), "pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz")
-extractGenomeRefFilenameFromFragmentFile(fragment.file)
-}
+# Mock a fragment file
+f <- tempfile(fileext=".tsv.gz")
+mockFragmentFile(f, c(chr1=1000), 10, LETTERS[1:5],
+                 comments=c("reference_path=/path/to/ref"))
+
+extractGenomeRefFilenameFromFragmentFile(f)
 
 }
 \author{

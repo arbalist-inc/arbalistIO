@@ -18,32 +18,38 @@ mockFragmentFile(
 \arguments{
 \item{output.file}{String containing a path to an output file.}
 
-\item{seq.lengths}{Named integer vector containing the lengths of the reference sequences used for alignment.
-Vector names should correspond to the names of the sequences.}
+\item{seq.lengths}{Named integer vector containing the lengths of the
+reference sequences used for alignment. Vector names should correspond to
+the names of the sequences.}
 
-\item{num.fragments}{Integer scalar, the average number of fragments per cell.}
+\item{num.fragments}{Integer scalar, the average number of fragments per
+cell.}
 
-\item{cell.names}{Character vector containing the cell names.
-The length of this vector is used as the total number of cells.}
+\item{cell.names}{Character vector containing the cell names. The length of
+this vector is used as the total number of cells.}
 
-\item{width.range}{Integer vector of length 2, containing the range of possible fragment widths in base pairs.}
+\item{width.range}{Integer vector of length 2, containing the range of
+possible fragment widths in base pairs.}
 
-\item{read.range}{Integer vector of length 2, containing the range of the read count supporting each fragment.}
+\item{read.range}{Integer vector of length 2, containing the range of the
+read count supporting each fragment.}
 
-\item{comments}{Character vector of comments to be added to the start of the file.}
+\item{comments}{Character vector of comments to be added to the start of the
+file.}
 
-\item{compressed}{Logical scalar indicating whether the output file should be compressed.}
+\item{compressed}{Logical scalar indicating whether the output file should be
+compressed.}
 }
 \value{
-A fragment file is created at \code{output.file}.
-\code{NULL} is invisibly returned.
+A fragment file is created at \code{output.file}. \code{NULL} is
+  invisibly returned.
 }
 \description{
 Mock up a fragment file for examples and testing.
 }
 \examples{
 temp <- tempfile(fileext=".fragments.gz")
-mockFragmentFile(temp, c(chrA=1000, chrB=200000, chrC=200), 
+mockFragmentFile(temp, c(chrA=1000, chrB=200000, chrC=200),
     num.fragments=100, cell.names=LETTERS)
 
 X <- read.table(temp)

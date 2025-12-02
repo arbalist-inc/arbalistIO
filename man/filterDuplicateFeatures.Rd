@@ -16,10 +16,29 @@ filterDuplicateFeatures(
 
 \item{mcol.name}{String specifying the colname for the experiment rowData}
 
-\item{summary.stat}{Function to summarize each feature (row) of the experiment}
+\item{summary.stat}{Function to summarize each feature (row) of the
+experiment}
 
-\item{selection.metric}{Function to select the row to keep when there are duplicate rows with the same mcol.name}
+\item{selection.metric}{Function to select the row to keep when there are
+duplicate rows with the same mcol.name}
+}
+\value{
+A \linkS4class{SummarizedExperiment} with duplicate features resolved.
 }
 \description{
-Keeps one feature from each set of duplicated features based on specified criteria, such as the feature with the highest values. Other duplicate features are removed.
+Keeps one feature from each set of duplicated features based on specified
+criteria, such as the feature with the highest values. Other duplicate
+features are removed.
+}
+\examples{
+library(SummarizedExperiment)
+
+# Create a mock SummarizedExperiment with duplicates
+counts <- matrix(1:10, ncol=2)
+rdata <- DataFrame(name = c("GeneA", "GeneA", "GeneB", "GeneC", "GeneC"))
+se <- SummarizedExperiment(assays=list(counts=counts), rowData=rdata)
+
+# Filter duplicates, keeping the row with the max sum
+se_filtered <- filterDuplicateFeatures(se, mcol.name="name", selection.metric=max)
+
 }

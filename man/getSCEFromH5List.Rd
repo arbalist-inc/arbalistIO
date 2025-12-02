@@ -7,15 +7,29 @@
 getSCEFromH5List(h5.res.list, grs)
 }
 \arguments{
-\item{h5.res.list}{A list containing delayed matrices with HDF5 backends that will be combined using AmalgamatedArray into a SingleCellExperiment. List item names should be the sample name for the delayed matrix.}
+\item{h5.res.list}{A list containing delayed matrices with HDF5 backends that
+will be combined using AmalgamatedArray into a SingleCellExperiment. List
+item names should be the sample name for the delayed matrix.}
 
-\item{grs}{GRange object to be used for the rowRanges of the resulting SingleCellExperiment}
+\item{grs}{GRange object to be used for the rowRanges of the resulting
+SingleCellExperiment}
 }
 \value{
 A SingleCellExperiment
 }
 \description{
-Create a SingleCellExperiment from a list of delayed matrices using AmalgamatedArray.
+Create a SingleCellExperiment from a list of delayed matrices using
+AmalgamatedArray.
+}
+\examples{
+# Mock H5 matrices
+m1 <- Matrix::Matrix(1:10, ncol=2)
+m2 <- Matrix::Matrix(1:10, ncol=2)
+h5.list <- list(S1 = m1, S2 = m2)
+grs <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:5, width=1))
+
+sce <- getSCEFromH5List(h5.list, grs)
+
 }
 \author{
 Natalie Fox

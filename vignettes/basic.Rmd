@@ -1,0 +1,174 @@
+---
+title: "Introduction to arbalistIO"
+output:
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Introduction to arbalistIO}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+**arbalistIO** facilitates the import of single-cell ATAC-seq and Multiome (ATAC + Gene Expression) data into Bioconductor's `MultiAssayExperiment`. It provides efficient C++ based parsers for 10x Genomics fragment files to generate HDF5-backed sparse matrices for both genomic tiles and custom regions.
+
+## Setup
+
+```{r setup, message=FALSE, warning=FALSE}
+library(arbalistIO)
+library(MultiAssayExperiment)
+library(SingleCellExperiment)
+library(GenomicRanges)
+library(rhdf5)
+library(Matrix)
+```
+
+## 1. Preparing Mock Data
+
+For this vignette, we will mock data that simulates the output of 10x Genomics Cell Ranger. This includes a fragment file (ATAC-seq) and a filtered feature matrix (Gene Expression).
+
+### Generate a Fragment File
+
+We use `mockFragmentFile` to create a fragment file containing reads for 50 cells.
+
+```{r mock_fragment}
+tmp_dir <- tempdir()
+fragment_file <- file.path(tmp_dir, "fragments.tsv.gz")
+
+seq_lengths <- c(chr1 = 10000, chr2 = 5000)
+cell_names <- paste0("Cell", 1:50)
+
+mockFragmentFile(
+  output.file = fragment_file,
+  seq.lengths = seq_lengths,
+  num.fragments = 5000,
+  cell.names = cell_names
+)
+```
+
+### Generate a Mock Feature Matrix (HDF5)
+
+`createArbalistMAE` requires the Cell Ranger filtered feature matrix (HDF5) to identify valid barcodes.
+
+TODO: add this as a function to the package.
+
+```{r mock_h5}
+h5_file <- file.path(tmp_dir, "filtered_feature_bc_matrix.h5")
+
+if (file.exists(h5_file)) file.remove(h5_file)
+h5createFile(h5_file)
+h5createGroup(h5_file, "matrix")
+h5createGroup(h5_file, "matrix/features")
+
+barcodes <- paste0(cell_names, "-1") 
+h5write(barcodes, h5_file, "matrix/barcodes")
+
+n_genes <- 10
+h5write(paste0("GENE", 1:n_genes), h5_file, "matrix/features/id")
+h5write(paste0("Gene", 1:n_genes), h5_file, "matrix/features/name")
+h5write(rep("Gene Expression", n_genes), h5_file, "matrix/features/feature_type")
+h5write(rep("chr1:1-100", n_genes), h5_file, "matrix/features/interval")
+h5write(rep("Genome1", n_genes), h5_file, "matrix/features/genome")
+
+set.seed(42)
+counts <- Matrix(rpois(n_genes * 50, lambda = 2), nrow = n_genes, sparse = TRUE)
+
+h5write(as.vector(counts@x), h5_file, "matrix/data")
+h5write(as.vector(counts@i), h5_file, "matrix/indices")
+h5write(as.vector(counts@p), h5_file, "matrix/indptr")
+h5write(dim(counts), h5_file, "matrix/shape")
+```
+
+## 2. Creating the MultiAssayExperiment
+
+Now we can use `createArbalistMAE` to import everything into a single object. We will also define a set of genomic regions (e.g., promoters) to quantify accessibility alongside the standard tile matrix.
+
+```{r create_mae}
+promoters <- GRanges(
+  seqnames = "chr1",
+  ranges = IRanges(start = seq(100, 1000, by = 200), width = 100)
+)
+
+mae <- createArbalistMAE(
+  sample.names = "MockSample",
+  fragment.files = fragment_file,
+  filtered.feature.matrix.files = h5_file,
+  output.dir = tmp_dir,
+  gene.grs = promoters,
+  tile.size = 500,
+  seq.lengths = seq_lengths
+)
+
+print(mae)
+```
+
+The resulting `MultiAssayExperiment` contains three experiments:
+
+1.  **TileMatrix500**: 500bp tile counts (ATAC).
+2.  **GeneAccessibilityMatrix**: Counts over the provided `gene.grs` regions (ATAC).
+3.  **GeneExpressionMatrix**: RNA counts imported from the HDF5 file.
+
+### Exploring the Object
+
+```{r explore_mae}
+tiles <- experiments(mae)[["TileMatrix500"]]
+print(tiles)
+
+rna <- experiments(mae)[["GeneExpressionMatrix"]]
+print(rna)
+
+head(colData(mae))
+```
+
+## 3. Low-Level Matrix Generation
+
+If you do not need the full `MultiAssayExperiment` structure, you can use the underlying C++ wrappers to generate specific matrices.
+
+### Generating a Tile Matrix
+
+Use `saveTileMatrix` to bin fragments into genome-wide tiles.
+
+```{r save_tiles}
+tile_h5 <- file.path(tmp_dir, "my_tiles.h5")
+
+tile_res <- saveTileMatrix(
+  fragment.file = fragment_file,
+  output.file = tile_h5,
+  output.name = "counts",
+  seq.lengths = seq_lengths,
+  tile.size = 1000
+)
+
+# Returns a list with the GRanges tiles and the HDF5Matrix
+tile_res$tiles
+tile_res$counts
+```
+
+### Generating a Region Matrix
+
+Use `saveRegionMatrix` to count fragments overlapping specific genomic regions
+
+```{r save_regions}
+region_h5 <- file.path(tmp_dir, "my_regions.h5")
+
+# Define arbitrary regions
+peaks <- GRanges("chr1", IRanges(start = c(10, 5000), width = 200))
+
+region_mat <- saveRegionMatrix(
+  fragment.file = fragment_file,
+  output.file = region_h5,
+  output.name = "counts",
+  regions = peaks
+)
+
+print(region_mat)
+```
+
+That's it! For analyzing multiome datasets, check out the arbalist package.

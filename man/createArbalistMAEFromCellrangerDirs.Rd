@@ -19,35 +19,97 @@ createArbalistMAEFromCellrangerDirs(
 )
 }
 \arguments{
-\item{cellranger.res.dirs}{Vector of strings specifying a Cell Ranger scATAC-seq or multiome results directory. Vector names need to be sample names.}
+\item{cellranger.res.dirs}{Vector of strings specifying a Cell Ranger
+scATAC-seq or multiome results directory. Vector names need to be sample
+names.}
 
-\item{output.dir}{String containing the directory where files should be output while creating the \linkS4class{MultiAssayExperiment}.}
+\item{output.dir}{String containing the directory where files should be
+output while creating the \linkS4class{MultiAssayExperiment}.}
 
-\item{min.frags}{Number specifying the minimum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses. Cells containing greater than or equal to min.frags total fragments will be retained.}
+\item{min.frags}{Number specifying the minimum number of mapped ATAC-seq
+fragments required per cell to pass filtering for use in downstream
+analyses. Cells containing greater than or equal to min.frags total
+fragments will be retained.}
 
-\item{max.frags}{Number specifying the maximum number of mapped ATAC-seq fragments required per cell to pass filtering for use in downstream analyses. Cells containing less than or equal to max.frags total fragments will be retained.}
+\item{max.frags}{Number specifying the maximum number of mapped ATAC-seq
+fragments required per cell to pass filtering for use in downstream
+analyses. Cells containing less than or equal to max.frags total fragments
+will be retained.}
 
-\item{tile.size}{Integer scalar specifying the size of the tiles in base pairs.}
+\item{tile.size}{Integer scalar specifying the size of the tiles in base
+pairs.}
 
-\item{seq.lengths}{Named integer vector containing the lengths of the reference sequences used for alignment.
-Vector names should correspond to the names of the sequences, in the same order of occurrence as in the fragment file.
-If \code{NULL}, this is obtained from the reference genome used by Cellranger (itself located by scanning the header of the fragment file).}
+\item{seq.lengths}{Named integer vector containing the lengths of the
+reference sequences used for alignment. Vector names should correspond to
+the names of the sequences, in the same order of occurrence as in the
+fragment file. If \code{NULL}, this is obtained from the reference genome
+used by Cellranger (itself located by scanning the header of the fragment
+file).}
 
-\item{gene.grs}{Genomic Ranges specifying gene coordinates for creating the gene score matrix. If NULL, then the geneset will be selected based on the genome version.}
+\item{gene.grs}{Genomic Ranges specifying gene coordinates for creating the
+gene score matrix. If NULL, then the geneset will be selected based on the
+genome version.}
 
-\item{use.alt.exp}{Logical for selecting the MultiAssayExperiment structure. TRUE means that there will only be one experiment in the MultiAssayExperiment and all other experiments will be in alternative experiments. This option is only available if the columns are the same for all Matrices. FALSE means that each Matrix will be a separate experiment in the MAE.}
+\item{use.alt.exp}{Logical for selecting the MultiAssayExperiment structure.
+TRUE means that there will only be one experiment in the
+MultiAssayExperiment and all other experiments will be in alternative
+experiments. This option is only available if the columns are the same for
+all Matrices. FALSE means that each Matrix will be a separate experiment in
+the MAE.}
 
-\item{main.exp.name}{String containing the name of the experiment that will be the main experiment when use.alt.exp is TRUE.}
+\item{main.exp.name}{String containing the name of the experiment that will
+be the main experiment when use.alt.exp is TRUE.}
 
-\item{filter.rna.features.without.intervals}{Logical whether to remove GeneExpression Matrix features from the h5.files that do not have interval specified. Often these are mitochondria genes.}
+\item{filter.rna.features.without.intervals}{Logical whether to remove
+GeneExpression Matrix features from the h5.files that do not have interval
+specified. Often these are mitochondria genes.}
 
-\item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix creation should be parallelized.}
+\item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
+creation should be parallelized.}
 }
 \value{
 A \linkS4class{MultiAssayExperiment}
 }
 \description{
-Import results from scATAC-seq or multiome Cell Ranger results directories into a MultiAssayExperiment.
+Import results from scATAC-seq or multiome Cell Ranger results directories
+into a MultiAssayExperiment.
+}
+\examples{
+# Mock a Cell Ranger directory structure
+tmpdir <- tempfile()
+dir.create(tmpdir)
+sample_dir <- file.path(tmpdir, "Sample1")
+dir.create(sample_dir)
+
+# Mock files
+seq_lengths <- c(chr1 = 1000)
+mockFragmentFile(file.path(sample_dir, "fragments.tsv.gz"),
+                 seq_lengths, 10, cell.names = LETTERS[1:5])
+
+# Create a valid mock feature matrix (H5)
+h5 <- file.path(sample_dir, "filtered_feature_bc_matrix.h5")
+rhdf5::h5createFile(h5)
+rhdf5::h5createGroup(h5, "matrix")
+rhdf5::h5write(LETTERS[1:5], h5, "matrix/barcodes", createnewfile = FALSE)
+rhdf5::h5write(as.integer(c(1,1,1,1,1)), h5, "matrix/data", createnewfile = FALSE)
+rhdf5::h5write(as.integer(c(0,0,0,0,0)), h5, "matrix/indices", createnewfile = FALSE)
+rhdf5::h5write(as.integer(c(0,1,2,3,4,5)), h5, "matrix/indptr", createnewfile = FALSE)
+rhdf5::h5write(as.integer(c(1,5)), h5, "matrix/shape", createnewfile = FALSE)
+rhdf5::h5createGroup(h5, "matrix/features")
+rhdf5::h5write("GENE1", h5, "matrix/features/id", createnewfile = FALSE)
+rhdf5::h5write("Gene1", h5, "matrix/features/name", createnewfile = FALSE)
+rhdf5::h5write("Gene Expression", h5, "matrix/features/feature_type", createnewfile = FALSE)
+rhdf5::h5write("chr1:1-100", h5, "matrix/features/interval", createnewfile = FALSE)
+rhdf5::h5write("Genome1", h5, "matrix/features/genome", createnewfile = FALSE)
+
+# Create MAE, using SerialParam to avoid thread errors during checks
+mae <- createArbalistMAEFromCellrangerDirs(
+    cellranger.res.dirs = c(Sample1 = sample_dir),
+    output.dir = tmpdir,
+    seq.lengths = seq_lengths,
+    BPPARAM = BiocParallel::SerialParam()
+)
+
 }
 \author{
 Natalie Fox

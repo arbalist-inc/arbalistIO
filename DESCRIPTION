@@ -1,14 +1,15 @@
 Package: arbalistIO
-Title: Arbalist MultiAssayExperiments
+Title: Import single-cell ATAC-seq and Multiome (ATAC + RNA) data as MAE
 Version: 0.1.1
 Date: 2025-03-12
 Description: 
-    MultiAssayExperiment set up for arbalist using C++ bindings to 
-    DelayedArrays, in preparation for submission to Bioconductor.
+    Implements import functions for arbalist. It works efficiently with standard outputs from 10x Cell Ranger outputs, 
+    using C++ backends to parse fragment files and generate HDF5-backed sparse matrices.
 Authors@R: c(
-    person("Jean-Philippe", "Fortin", email = "fortin946@gmail.com", role = c("aut", "cre")),
+    person("Jean-Philippe", "Fortin", email = "fortin946@gmail.com", role = c("aut")),
     person("Aaron", "Lun", email = "infinite.monkeys.with.keyboards@gmail.com", role = c("aut")),
-    person("Natalie", "Fox", email = "natalie.fox@roche.com", role = c("aut"))
+    person("Natalie", "Fox", email = "natalie.fox@roche.com", role = c("aut")),
+    person("Jayaram", "Kancherla", email = "jayaram.kancherla@gmail.com", role = c("ctb", "cre"))
     )
 License: MIT + file LICENSE
 LinkingTo:
@@ -16,7 +17,7 @@ LinkingTo:
     Rhdf5lib,
     beachmat
 LazyData: TRUE
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Depends:
     Matrix
 Imports:
@@ -43,6 +44,8 @@ Suggests:
 SystemRequirements: 
     GNU make, 
     C++17
-biocViews: Workflow, SingleCellWorkflow, EpigeneticsWorkflow
+biocViews: Workflow, SingleCellWorkflow, EpigeneticsWorkflow, AnnotationWorkflow
 VignetteBuilder: 
     knitr
+URL: https://github.com/arbalist-inc/arbalistIO
+BugReports: https://github.com/arbalist-inc/arbalistIO/issues

@@ -1,6 +1,6 @@
 #include "Rcpp.h"
 #include "H5Cpp.h"
-#include "FragmentParser.hpp"
+#include "FragmentParser.h"
 #include "hdf5_utils.h"
 
 #include <unordered_map>
