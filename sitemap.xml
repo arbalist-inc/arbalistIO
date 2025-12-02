@@ -1,0 +1,26 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/articles/basic.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/GRCh38.gene.grs.html</loc></url>
+<url><loc>/reference/GRCh38.seq.lengths.html</loc></url>
+<url><loc>/reference/GRCh38.tss.grs.html</loc></url>
+<url><loc>/reference/GRCm38.gene.grs.html</loc></url>
+<url><loc>/reference/GRCm38.seq.lengths.html</loc></url>
+<url><loc>/reference/GRCm38.tss.grs.html</loc></url>
+<url><loc>/reference/createArbalistMAE.html</loc></url>
+<url><loc>/reference/createArbalistMAEFromCellrangerDirs.html</loc></url>
+<url><loc>/reference/createMultiomeRNASCE.html</loc></url>
+<url><loc>/reference/extractGenomeRefFilenameFromFragmentFile.html</loc></url>
+<url><loc>/reference/filterDuplicateFeatures.html</loc></url>
+<url><loc>/reference/getExpListFromFragments.html</loc></url>
+<url><loc>/reference/getSCEFromH5List.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/mockFragmentFile.html</loc></url>
+<url><loc>/reference/saveRegionMatrix.html</loc></url>
+<url><loc>/reference/saveTileMatrix.html</loc></url>
+</urlset>
+
