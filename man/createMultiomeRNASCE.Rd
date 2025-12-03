@@ -18,13 +18,13 @@ filtered_feature_bc_matrix.h5. Vector must be the same length as
 \code{sample.names}.}
 
 \item{sample.names}{Character vector specifying sample names. Vector must be the
-same length as \code{sample.names}.}
+same length as \code{h5.files}.}
 
-\item{feature.type}{String scalar specifying the feature type to select from
+\item{feature.type}{String specifying the feature type to select from
 filtered_feature_bc_matrix.h5.}
 
 \item{filter.features.without.intervals}{Logical scalar whether to remove
-features from the \code{sample.names} that do not have interval specified.
+features from the \code{h5.files} that do not have interval specified.
 Often these are mitochondrial genes.}
 }
 \value{

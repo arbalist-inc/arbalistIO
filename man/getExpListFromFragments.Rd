@@ -15,11 +15,11 @@ getExpListFromFragments(
 )
 }
 \arguments{
-\item{fragment.files}{String specifying fragment files. Vector names
-need to be sample names.}
+\item{fragment.files}{Named character vector specifying fragment files.
+Vector names need to be sample names.}
 
 \item{output.dir}{String specifying the output directory where
-\linkS4class{MultiAssayExperiment} is created.}
+\linkS4class{MultiAssayExperiment} will be created.}
 
 \item{tile.size}{Integer scalar specifying the size of the tiles in base
 pairs.}
@@ -31,13 +31,13 @@ fragment file. If \code{NULL}, this is obtained from the reference genome
 used by Cellranger (itself located by scanning the header of the fragment
 file).}
 
-\item{gene.grs}{Genomic Ranges specifying gene coordinates for creating the
-gene score matrix. If \code{NULL}, the gene accessibility matrix will not
-be created.}
+\item{gene.grs}{\linkS4class{GRanges} specifying gene coordinates for
+creating the gene score matrix. If \code{NULL}, the gene accessibility
+matrix will not be created.}
 
-\item{barcodes.list}{String vector with samples as names and the values - a
-vector of barcodes for that sample. If \code{NULL}, all barcodes from the
-fragment file will be used.}
+\item{barcodes.list}{Named character vector with samples names as names and
+the values - a vector of barcodes to keep for that sample. If \code{NULL},
+all barcodes from the fragment file will be used.}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
 creation should be parallelized.}

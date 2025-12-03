@@ -14,14 +14,14 @@ filterDuplicateFeatures(
 \arguments{
 \item{se}{\linkS4class{SummarizedExperiment}.}
 
-\item{mcol.name}{String specifying the column name for the experiment
-rowData.}
+\item{mcol.name}{String specifying the column name containing
+feature id's in the experiment's rowData.}
 
 \item{summary.stat}{Function to summarize each feature (row) of the
 experiment.}
 
 \item{selection.metric}{Function to select the row to keep when there are
-duplicate rows with the same \code{col.name}.}
+duplicate rows with the same \code{mcol.name}.}
 }
 \value{
 A \linkS4class{SummarizedExperiment} with duplicate features

@@ -5,12 +5,12 @@
 #' features are removed.
 #'
 #' @param se \linkS4class{SummarizedExperiment}.
-#' @param mcol.name String specifying the column name for the experiment
-#'   rowData.
+#' @param mcol.name String specifying the column name containing
+#'   feature id's in the experiment's rowData.
 #' @param summary.stat Function to summarize each feature (row) of the
 #'   experiment.
 #' @param selection.metric Function to select the row to keep when there are
-#'   duplicate rows with the same \code{col.name}.
+#'   duplicate rows with the same \code{mcol.name}.
 #'
 #' @importFrom SummarizedExperiment mcols assay
 #' @return A \linkS4class{SummarizedExperiment} with duplicate features
@@ -28,22 +28,36 @@
 #'
 #' @export
 filterDuplicateFeatures <- function(se,
-                                    mcol.name = 'name',
+                                    mcol.name = "name",
                                     summary.stat = sum,
                                     selection.metric = max) {
-  duplicate.values <- names(which(table(mcols(se)[, mcol.name]) > 1))
-  if (length(duplicate.values) == 0) {
+  ids <- mcols(se)[[mcol.name]]
+  dup_flag <- duplicated(ids) | duplicated(ids, fromLast = TRUE)
+  
+  # if no duplicates, return
+  if (!any(dup_flag)) {
     return(se)
   }
-  non.duplicate.rows <- which(!mcols(se)[, mcol.name] %in% duplicate.values)
-  duplicate.rows <- which(mcols(se)[, mcol.name] %in% duplicate.values)
-  selected.duplicate.rows <- sapply(duplicate.values, function(i) {
-    duplicate.rows <- which(mcols(se)[, mcol.name] %in% i)
-    row.summary.stats <- apply(assay(se)[duplicate.rows, ], 1, summary.stat)
-    return(duplicate.rows[which(row.summary.stats == selection.metric(row.summary.stats))[1]])
-  })
   
-  se <- se[sort(c(non.duplicate.rows, selected.duplicate.rows)), ]
+  # precompute summary statistic for all rows
+  row_summary <- apply(assay(se), 1, summary.stat)
   
-  return(se)
+  dup_indices <- which(dup_flag)
+  dup_ids <- ids[dup_flag]
+  
+  # Split duplicate indices by ID, pick one row per group
+  idx_list <- split(dup_indices, dup_ids)
+  
+  selected_dup_rows <- vapply(
+    idx_list,
+    FUN.VALUE = integer(1L),
+    FUN = function(ix) {
+      vals <- row_summary[ix]
+      ix[which(vals == selection.metric(vals))[1]]
+    }
+  )
+  
+  non_dup_rows <- which(!dup_flag)
+  keep <- sort(c(non_dup_rows, selected_dup_rows))
+  se[keep, ]
 }

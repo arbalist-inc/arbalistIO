@@ -44,7 +44,7 @@ to include in the \linkS4class{MultiAssayExperiment}'s colData. ex. 10x
 Cell Ranger result output summary.csv}
 
 \item{output.dir}{String specifying the output directory where
-\linkS4class{MultiAssayExperiment} is created.}
+\linkS4class{MultiAssayExperiment} will be created.}
 
 \item{multiome}{Logical scalar whether to extract the RNA features using
 \code{createMultiomeRNASCE} on the feature.matrix.files  and create a

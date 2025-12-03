@@ -19,12 +19,12 @@ createArbalistMAEFromCellrangerDirs(
 )
 }
 \arguments{
-\item{cellranger.res.dirs}{Character vector specifying a Cell Ranger
+\item{cellranger.res.dirs}{Named character vector specifying a Cell Ranger
 scATAC-seq or multiome results directory. Vector names need to be sample
 names.}
 
 \item{output.dir}{String specifying the output directory where
-\linkS4class{MultiAssayExperiment} is created.}
+\linkS4class{MultiAssayExperiment} will be created.}
 
 \item{min.frags}{Integer scalar specifying the minimum number of mapped
 ATAC-seq fragments required per cell to pass filtering for use in

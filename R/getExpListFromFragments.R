@@ -2,16 +2,16 @@
 #'
 #' Create a list of single cell experiments from fragment files
 #'
-#' @param fragment.files String specifying fragment files. Vector names
-#'   need to be sample names.
+#' @param fragment.files Named character vector specifying fragment files.
+#'   Vector names need to be sample names.
 #' @param output.dir String specifying the output directory where
-#'   \linkS4class{MultiAssayExperiment} is created.
-#' @param gene.grs Genomic Ranges specifying gene coordinates for creating the
-#'   gene score matrix. If \code{NULL}, the gene accessibility matrix will not
-#'   be created.
-#' @param barcodes.list String vector with samples as names and the values - a
-#'   vector of barcodes for that sample. If \code{NULL}, all barcodes from the
-#'   fragment file will be used.
+#'   \linkS4class{MultiAssayExperiment} will be created.
+#' @param gene.grs \linkS4class{GRanges} specifying gene coordinates for
+#'   creating the gene score matrix. If \code{NULL}, the gene accessibility
+#'   matrix will not be created.
+#' @param barcodes.list Named character vector with samples names as names and
+#'   the values - a vector of barcodes to keep for that sample. If \code{NULL},
+#'   all barcodes from the fragment file will be used.
 #' @param BPPARAM A \linkS4class{BiocParallelParam} object indicating how matrix
 #'   creation should be parallelized.
 #' @inheritParams saveTileMatrix
@@ -161,10 +161,11 @@ getExpListFromFragments <- function(fragment.files,
 #' AmalgamatedArray.
 #'
 #' @param h5.res.list List containing delayed matrices with HDF5 backends that
-#'   will be combined using \linkS4class{AmalgamatedArray} into a \linkS4class{SingleCellExperiment}. List
-#'   item names should be the sample name for the delayed matrix.
-#' @param grs Genomic Ranges object to be used for the rowRanges of the resulting
-#'   \linkS4class{SingleCellExperiment}.
+#'   will be combined using \linkS4class{AmalgamatedArray} into a
+#'   \linkS4class{SingleCellExperiment}. List item names should be the sample
+#'   name for the delayed matrix.
+#' @param grs \linkS4class{GRanges} object to be used for the rowRanges of the
+#'   resulting \linkS4class{SingleCellExperiment}.
 #'
 #' @return A SingleCellExperiment.
 #'
@@ -183,7 +184,7 @@ getExpListFromFragments <- function(fragment.files,
 #' grs <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:5, width=1))
 #'
 #' sce <- getSCEFromH5List(h5.list, grs)
-#'
+#' 
 getSCEFromH5List <- function(h5.res.list, grs) {
   # Combined the per sample results into one matrix
   if (length(h5.res.list) == 1) {
