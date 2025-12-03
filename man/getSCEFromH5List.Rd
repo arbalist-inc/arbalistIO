@@ -7,15 +7,15 @@
 getSCEFromH5List(h5.res.list, grs)
 }
 \arguments{
-\item{h5.res.list}{A list containing delayed matrices with HDF5 backends that
-will be combined using AmalgamatedArray into a SingleCellExperiment. List
+\item{h5.res.list}{List containing delayed matrices with HDF5 backends that
+will be combined using \linkS4class{AmalgamatedArray} into a \linkS4class{SingleCellExperiment}. List
 item names should be the sample name for the delayed matrix.}
 
-\item{grs}{GRange object to be used for the rowRanges of the resulting
-SingleCellExperiment}
+\item{grs}{Genomic Ranges object to be used for the rowRanges of the resulting
+\linkS4class{SingleCellExperiment}.}
 }
 \value{
-A SingleCellExperiment
+A SingleCellExperiment.
 }
 \description{
 Create a SingleCellExperiment from a list of delayed matrices using

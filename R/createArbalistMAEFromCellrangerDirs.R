@@ -3,12 +3,12 @@
 #' Import results from scATAC-seq or multiome Cell Ranger results directories
 #' into a MultiAssayExperiment.
 #'
-#' @param cellranger.res.dirs Vector of strings specifying a Cell Ranger
+#' @param cellranger.res.dirs Character vector specifying a Cell Ranger
 #'   scATAC-seq or multiome results directory. Vector names need to be sample
 #'   names.
 #' @inheritParams createArbalistMAE
 #'
-#' @return A \linkS4class{MultiAssayExperiment}
+#' @return A \linkS4class{MultiAssayExperiment}.
 #'
 #' @author Natalie Fox
 #' @export

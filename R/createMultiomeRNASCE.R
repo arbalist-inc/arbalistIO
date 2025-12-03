@@ -3,18 +3,19 @@
 #' Import RNA results from multiome Cell Ranger results into a
 #' SingleCellExperiment.
 #'
-#' @param h5.files Vector of strings specifying filtered_feature_bc_matrix.h5
-#'   path. ex. could just be filtered_feature_bc_matrix.h5. Vector must be the
-#'   same length as sample.names.
-#' @param sample.names Vector of strings specifying sample names. Vector must be
-#'   the same length as h5.files.
-#' @param feature.type String specifying the feature type to select from
+#' @param h5.files Character vector specifying path to a
+#'   filtered_feature_bc_matrix.h5 path. ex. could just be
+#'   filtered_feature_bc_matrix.h5. Vector must be the same length as
+#'   \code{sample.names}.
+#' @param sample.names Character vector specifying sample names. Vector must be the
+#'   same length as \code{sample.names}.
+#' @param feature.type String scalar specifying the feature type to select from
 #'   filtered_feature_bc_matrix.h5.
-#' @param filter.features.without.intervals Logical whether to remove features
-#'   from the h5.files that do not have interval specified. Often these are
-#'   mitochondria genes.
+#' @param filter.features.without.intervals Logical scalar whether to remove
+#'   features from the \code{sample.names} that do not have interval specified.
+#'   Often these are mitochondrial genes.
 #'
-#' @return A \linkS4class{SingleCellExperiment}
+#' @return A \linkS4class{SingleCellExperiment}.
 #'
 #' @author Natalie Fox
 #' @importFrom BiocGenerics which
@@ -26,6 +27,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment cbind rowData
 #'   rowRanges<- rowData<-
 #' @importFrom utils object.size read.csv
+#'
 #' @export
 createMultiomeRNASCE <- function(h5.files,
                                  sample.names = NULL,

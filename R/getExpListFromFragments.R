@@ -2,21 +2,21 @@
 #'
 #' Create a list of single cell experiments from fragment files
 #'
-#' @param fragment.files Vector of strings specifying fragment files. Vector
-#'   names need to be sample names.
-#' @param output.dir String containing the directory where files should be
-#'   output while creating the \linkS4class{MultiAssayExperiment}.
+#' @param fragment.files String specifying fragment files. Vector names
+#'   need to be sample names.
+#' @param output.dir String specifying the output directory where
+#'   \linkS4class{MultiAssayExperiment} is created.
 #' @param gene.grs Genomic Ranges specifying gene coordinates for creating the
-#'   gene score matrix. If NA, the gene accessibility matrix will not be
-#'   created.
-#' @param barcodes.list A List with samples as names and the values a vector of
-#'   barcodes for that sample. If NULL, all barcodes from the fragment file will
-#'   be used.
+#'   gene score matrix. If \code{NULL}, the gene accessibility matrix will not
+#'   be created.
+#' @param barcodes.list String vector with samples as names and the values - a
+#'   vector of barcodes for that sample. If \code{NULL}, all barcodes from the
+#'   fragment file will be used.
 #' @param BPPARAM A \linkS4class{BiocParallelParam} object indicating how matrix
 #'   creation should be parallelized.
 #' @inheritParams saveTileMatrix
 #'
-#' @return A list of experiments
+#' @return A list of experiments.
 #'
 #' @author Natalie Fox
 #' @importFrom SingleCellExperiment mainExpName<-
@@ -160,13 +160,13 @@ getExpListFromFragments <- function(fragment.files,
 #' Create a SingleCellExperiment from a list of delayed matrices using
 #' AmalgamatedArray.
 #'
-#' @param h5.res.list A list containing delayed matrices with HDF5 backends that
-#'   will be combined using AmalgamatedArray into a SingleCellExperiment. List
+#' @param h5.res.list List containing delayed matrices with HDF5 backends that
+#'   will be combined using \linkS4class{AmalgamatedArray} into a \linkS4class{SingleCellExperiment}. List
 #'   item names should be the sample name for the delayed matrix.
-#' @param grs GRange object to be used for the rowRanges of the resulting
-#'   SingleCellExperiment
+#' @param grs Genomic Ranges object to be used for the rowRanges of the resulting
+#'   \linkS4class{SingleCellExperiment}.
 #'
-#' @return A SingleCellExperiment
+#' @return A SingleCellExperiment.
 #'
 #' @author Natalie Fox
 #' @importFrom alabaster.matrix AmalgamatedArray

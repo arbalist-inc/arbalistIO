@@ -12,22 +12,23 @@ createMultiomeRNASCE(
 )
 }
 \arguments{
-\item{h5.files}{Vector of strings specifying filtered_feature_bc_matrix.h5
-path. ex. could just be filtered_feature_bc_matrix.h5. Vector must be the
-same length as sample.names.}
+\item{h5.files}{Character vector specifying path to a
+filtered_feature_bc_matrix.h5 path. ex. could just be
+filtered_feature_bc_matrix.h5. Vector must be the same length as
+\code{sample.names}.}
 
-\item{sample.names}{Vector of strings specifying sample names. Vector must be
-the same length as h5.files.}
+\item{sample.names}{Character vector specifying sample names. Vector must be the
+same length as \code{sample.names}.}
 
-\item{feature.type}{String specifying the feature type to select from
+\item{feature.type}{String scalar specifying the feature type to select from
 filtered_feature_bc_matrix.h5.}
 
-\item{filter.features.without.intervals}{Logical whether to remove features
-from the h5.files that do not have interval specified. Often these are
-mitochondria genes.}
+\item{filter.features.without.intervals}{Logical scalar whether to remove
+features from the \code{sample.names} that do not have interval specified.
+Often these are mitochondrial genes.}
 }
 \value{
-A \linkS4class{SingleCellExperiment}
+A \linkS4class{SingleCellExperiment}.
 }
 \description{
 Import RNA results from multiome Cell Ranger results into a

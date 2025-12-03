@@ -7,13 +7,15 @@
 extractGenomeRefFilenameFromFragmentFile(fragment.file)
 }
 \arguments{
-\item{fragment.file}{String specifying fragment file name}
+\item{fragment.file}{String specifying fragment file name.}
 }
 \value{
-Named string vector
+Character vector containing the file path to the genome reference
+  file.
 }
 \description{
-Helper function to extract genome reference file name from fragment file header.
+Helper function to extract genome reference file name from fragment file
+header.
 }
 \examples{
 # Mock a fragment file

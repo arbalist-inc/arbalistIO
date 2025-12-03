@@ -1,10 +1,13 @@
 #' Retrieves genome reference file name
 #'
-#' Helper function to extract genome reference file name from fragment file header.
+#' Helper function to extract genome reference file name from fragment file
+#' header.
 #'
-#' @param fragment.file String specifying fragment file name
-#' @return Named string vector
+#' @param fragment.file String specifying fragment file name.
+#' @return Character vector containing the file path to the genome reference
+#'   file.
 #' @author Natalie Fox
+#'
 #' @examples
 #' # Mock a fragment file
 #' f <- tempfile(fileext=".tsv.gz")

@@ -16,13 +16,13 @@ mockFragmentFile(
 )
 }
 \arguments{
-\item{output.file}{String containing a path to an output file.}
+\item{output.file}{String scalar containing a path to an output file.}
 
 \item{seq.lengths}{Named integer vector containing the lengths of the
 reference sequences used for alignment. Vector names should correspond to
 the names of the sequences.}
 
-\item{num.fragments}{Integer scalar, the average number of fragments per
+\item{num.fragments}{Integer scalar specifying the average number of fragments per
 cell.}
 
 \item{cell.names}{Character vector containing the cell names. The length of

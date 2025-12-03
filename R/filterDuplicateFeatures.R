@@ -4,15 +4,17 @@
 #' criteria, such as the feature with the highest values. Other duplicate
 #' features are removed.
 #'
-#' @param se \linkS4class{SummarizedExperiment}
-#' @param mcol.name String specifying the colname for the experiment rowData
+#' @param se \linkS4class{SummarizedExperiment}.
+#' @param mcol.name String specifying the column name for the experiment
+#'   rowData.
 #' @param summary.stat Function to summarize each feature (row) of the
-#'   experiment
+#'   experiment.
 #' @param selection.metric Function to select the row to keep when there are
-#'   duplicate rows with the same mcol.name
+#'   duplicate rows with the same \code{col.name}.
 #'
 #' @importFrom SummarizedExperiment mcols assay
-#' @return A \linkS4class{SummarizedExperiment} with duplicate features resolved.
+#' @return A \linkS4class{SummarizedExperiment} with duplicate features
+#'   resolved.
 #' @examples
 #' library(SummarizedExperiment)
 #'
