@@ -7,7 +7,7 @@
 createArbalistMAE(
   sample.names,
   fragment.files,
-  filtered.feature.matrix.files,
+  feature.matrix.files,
   barcode.annotation.files = NULL,
   sample.annotation.files = NULL,
   output.dir = tempdir(),
@@ -24,43 +24,43 @@ createArbalistMAE(
 )
 }
 \arguments{
-\item{sample.names}{String vector containing the sample names. Must be the
-same length as fragment.files & filtered.feature.matrix.files.}
+\item{sample.names}{Character vector containing the sample names. Must be the
+same length as fragment.files & feature.matrix.files.}
 
-\item{fragment.files}{String vector containing the fragment file names and
+\item{fragment.files}{Character vector containing the fragment file names and
 paths. ex. 10x Cell Ranger result output atac_fragments.tsv.gz or
 fragments.tsv.gz}
 
-\item{filtered.feature.matrix.files}{String vector containing the filtered
+\item{feature.matrix.files}{Character vector containing the raw or filtered
 feature matrix file names and paths. ex. 10x Cell Ranger result output
 filtered_feature_bc_matrix.h5 or filtered_tf_bc_matrix.h5}
 
-\item{barcode.annotation.files}{String vector containing barcode annotation
-to put in the SingleCellExperiment colData. ex. 10x Cell Ranger result
-output per_barcode_metrics.csv or singlecell.csv}
+\item{barcode.annotation.files}{Character vector containing barcode
+annotation to include in the \linkS4class{SingleCellExperiment}'s colData.
+ex. 10x Cell Ranger result output per_barcode_metrics.csv or singlecell.csv}
 
-\item{sample.annotation.files}{String vector containing sample annotation to
-put in the MultiAssayExperiment colData. ex. 10x Cell Ranger result output
-summary.csv}
+\item{sample.annotation.files}{Character vector containing sample annotation
+to include in the \linkS4class{MultiAssayExperiment}'s colData. ex. 10x
+Cell Ranger result output summary.csv}
 
-\item{output.dir}{String containing the directory where files should be
-output while creating the \linkS4class{MultiAssayExperiment}.}
+\item{output.dir}{String specifying the output directory where
+\linkS4class{MultiAssayExperiment} will be created.}
 
-\item{multiome}{Logical whether to use createMultiomeRNASCE on the
-filtered.feature.matrix.files to extract the RNA features and create a
-SingleCellExperiment. If NULL, then will become TRUE if
-filtered.feature.matrix.files contain "filtered_feature_bc_matrix.h5"
-otherwise FALSE.}
+\item{multiome}{Logical scalar whether to extract the RNA features using
+\code{createMultiomeRNASCE} on the feature.matrix.files  and create a
+\linkS4class{SingleCellExperiment}. If \code{NULL}, this is inferred based
+on the feature.matrix.files - \code{TRUE} if feature.matrix.files contain
+"filtered_feature_bc_matrix.h5" otherwise \code{FALSE}.}
 
-\item{min.frags}{Number specifying the minimum number of mapped ATAC-seq
-fragments required per cell to pass filtering for use in downstream
-analyses. Cells containing greater than or equal to min.frags total
-fragments will be retained.}
+\item{min.frags}{Integer scalar specifying the minimum number of mapped
+ATAC-seq fragments required per cell to pass filtering for use in
+downstream analyses. Only cells containing total fragments greater than or
+equal to \code{min.frags} will be retained.}
 
-\item{max.frags}{Number specifying the maximum number of mapped ATAC-seq
-fragments required per cell to pass filtering for use in downstream
-analyses. Cells containing less than or equal to max.frags total fragments
-will be retained.}
+\item{max.frags}{Integer scalar specifying the maximum number of mapped
+ATAC-seq fragments required per cell to pass filtering for use in
+downstream analyses. Only cells containing total fragments less than or
+equal to \code{max.frags} will be retained.}
 
 \item{tile.size}{Integer scalar specifying the size of the tiles in base
 pairs.}
@@ -72,29 +72,31 @@ fragment file. If \code{NULL}, this is obtained from the reference genome
 used by Cellranger (itself located by scanning the header of the fragment
 file).}
 
-\item{gene.grs}{Genomic Ranges specifying gene coordinates for creating the
-gene score matrix. If NULL, then the geneset will be selected based on the
-genome version.}
+\item{gene.grs}{\linkS4class{GRanges} specifying gene coordinates for
+creating the gene score matrix. If \code{NULL}, then the gene set will be
+selected based on the genome version inferred from the fragment files.}
 
-\item{use.alt.exp}{Logical for selecting the MultiAssayExperiment structure.
-TRUE means that there will only be one experiment in the
-MultiAssayExperiment and all other experiments will be in alternative
-experiments. This option is only available if the columns are the same for
-all Matrices. FALSE means that each Matrix will be a separate experiment in
-the MAE.}
+\item{use.alt.exp}{Logical scalar for selecting the
+\linkS4class{MultiAssayExperiment} structure. \code{TRUE} means there will
+only be one experiment (a \linkS4class{SingleCellExperiment}) in the
+\linkS4class{MultiAssayExperiment} and all other experiments will be in
+alternative experiments. This option should only be used if the columns are
+the same across all matrices. \code{FALSE} means each matrix will be a
+separate experiment in the MAE.}
 
 \item{main.exp.name}{String containing the name of the experiment that will
-be the main experiment when use.alt.exp is TRUE.}
+be used as the main experiment in the \linkS4class{SingleCellExperiment}
+when \code{use.alt.exp} is \code{TRUE}.}
 
-\item{filter.rna.features.without.intervals}{Logical whether to remove
-GeneExpression Matrix features from the h5.files that do not have interval
-specified. Often these are mitochondria genes.}
+\item{filter.rna.features.without.intervals}{Logical scalar whether to remove
+'GeneExpression' matrix features from the \code{feature.matrix.files} that
+do not have interval specified. Often these are mitochondrial genes.}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
 creation should be parallelized.}
 }
 \value{
-A \linkS4class{MultiAssayExperiment}
+A \linkS4class{MultiAssayExperiment}.
 }
 \description{
 Import scATAC-seq or multiome results into a MultiAssayExperiment.
@@ -135,7 +137,7 @@ dir.create(example_dir)
 mae <- createArbalistMAE(
     sample.names = "Sample1",
     fragment.files = f,
-    filtered.feature.matrix.files = h5,
+    feature.matrix.files = h5,
     seq.lengths = seq_lengths,
     output.dir = example_dir,
     BPPARAM = BiocParallel::SerialParam()

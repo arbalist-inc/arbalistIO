@@ -3,12 +3,12 @@
 #' Import results from scATAC-seq or multiome Cell Ranger results directories
 #' into a MultiAssayExperiment.
 #'
-#' @param cellranger.res.dirs Vector of strings specifying a Cell Ranger
+#' @param cellranger.res.dirs Named character vector specifying a Cell Ranger
 #'   scATAC-seq or multiome results directory. Vector names need to be sample
 #'   names.
 #' @inheritParams createArbalistMAE
 #'
-#' @return A \linkS4class{MultiAssayExperiment}
+#' @return A \linkS4class{MultiAssayExperiment}.
 #'
 #' @author Natalie Fox
 #' @export
@@ -70,7 +70,7 @@ createArbalistMAEFromCellrangerDirs <- function(cellranger.res.dirs,
       cellranger.res.dirs,
       c('atac_fragments.tsv.gz', 'fragments.tsv.gz')
     ),
-    filtered.feature.matrix.files = .getFilesFromResDirs(
+    feature.matrix.files = .getFilesFromResDirs(
       cellranger.res.dirs,
       c(
         'filtered_feature_bc_matrix.h5',

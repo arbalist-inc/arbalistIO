@@ -19,22 +19,22 @@ createArbalistMAEFromCellrangerDirs(
 )
 }
 \arguments{
-\item{cellranger.res.dirs}{Vector of strings specifying a Cell Ranger
+\item{cellranger.res.dirs}{Named character vector specifying a Cell Ranger
 scATAC-seq or multiome results directory. Vector names need to be sample
 names.}
 
-\item{output.dir}{String containing the directory where files should be
-output while creating the \linkS4class{MultiAssayExperiment}.}
+\item{output.dir}{String specifying the output directory where
+\linkS4class{MultiAssayExperiment} will be created.}
 
-\item{min.frags}{Number specifying the minimum number of mapped ATAC-seq
-fragments required per cell to pass filtering for use in downstream
-analyses. Cells containing greater than or equal to min.frags total
-fragments will be retained.}
+\item{min.frags}{Integer scalar specifying the minimum number of mapped
+ATAC-seq fragments required per cell to pass filtering for use in
+downstream analyses. Only cells containing total fragments greater than or
+equal to \code{min.frags} will be retained.}
 
-\item{max.frags}{Number specifying the maximum number of mapped ATAC-seq
-fragments required per cell to pass filtering for use in downstream
-analyses. Cells containing less than or equal to max.frags total fragments
-will be retained.}
+\item{max.frags}{Integer scalar specifying the maximum number of mapped
+ATAC-seq fragments required per cell to pass filtering for use in
+downstream analyses. Only cells containing total fragments less than or
+equal to \code{max.frags} will be retained.}
 
 \item{tile.size}{Integer scalar specifying the size of the tiles in base
 pairs.}
@@ -46,29 +46,31 @@ fragment file. If \code{NULL}, this is obtained from the reference genome
 used by Cellranger (itself located by scanning the header of the fragment
 file).}
 
-\item{gene.grs}{Genomic Ranges specifying gene coordinates for creating the
-gene score matrix. If NULL, then the geneset will be selected based on the
-genome version.}
+\item{gene.grs}{\linkS4class{GRanges} specifying gene coordinates for
+creating the gene score matrix. If \code{NULL}, then the gene set will be
+selected based on the genome version inferred from the fragment files.}
 
-\item{use.alt.exp}{Logical for selecting the MultiAssayExperiment structure.
-TRUE means that there will only be one experiment in the
-MultiAssayExperiment and all other experiments will be in alternative
-experiments. This option is only available if the columns are the same for
-all Matrices. FALSE means that each Matrix will be a separate experiment in
-the MAE.}
+\item{use.alt.exp}{Logical scalar for selecting the
+\linkS4class{MultiAssayExperiment} structure. \code{TRUE} means there will
+only be one experiment (a \linkS4class{SingleCellExperiment}) in the
+\linkS4class{MultiAssayExperiment} and all other experiments will be in
+alternative experiments. This option should only be used if the columns are
+the same across all matrices. \code{FALSE} means each matrix will be a
+separate experiment in the MAE.}
 
 \item{main.exp.name}{String containing the name of the experiment that will
-be the main experiment when use.alt.exp is TRUE.}
+be used as the main experiment in the \linkS4class{SingleCellExperiment}
+when \code{use.alt.exp} is \code{TRUE}.}
 
-\item{filter.rna.features.without.intervals}{Logical whether to remove
-GeneExpression Matrix features from the h5.files that do not have interval
-specified. Often these are mitochondria genes.}
+\item{filter.rna.features.without.intervals}{Logical scalar whether to remove
+'GeneExpression' matrix features from the \code{feature.matrix.files} that
+do not have interval specified. Often these are mitochondrial genes.}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
 creation should be parallelized.}
 }
 \value{
-A \linkS4class{MultiAssayExperiment}
+A \linkS4class{MultiAssayExperiment}.
 }
 \description{
 Import results from scATAC-seq or multiome Cell Ranger results directories
