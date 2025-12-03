@@ -25,7 +25,7 @@ test_that("createArbalistMAE works", {
   mae <- createArbalistMAE(
     sample.names = sample_name,
     fragment.files = frag_file,
-    filtered.feature.matrix.files = feat_file,
+    feature.matrix.files = feat_file,
     output.dir = tmp_dir,
     gene.grs = gene_grs,
     seq.lengths = seq_lengths,
@@ -48,7 +48,7 @@ test_that("createArbalistMAE validates input lengths", {
     createArbalistMAE(
       sample.names = c("A", "B"),
       fragment.files = c("file1"),
-      filtered.feature.matrix.files = c("file1", "file2")
+      feature.matrix.files = c("file1", "file2")
     ),
     "fragment.files and sample names need to be the same length"
   )

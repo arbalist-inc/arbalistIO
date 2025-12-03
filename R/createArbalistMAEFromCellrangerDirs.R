@@ -70,7 +70,7 @@ createArbalistMAEFromCellrangerDirs <- function(cellranger.res.dirs,
       cellranger.res.dirs,
       c('atac_fragments.tsv.gz', 'fragments.tsv.gz')
     ),
-    filtered.feature.matrix.files = .getFilesFromResDirs(
+    feature.matrix.files = .getFilesFromResDirs(
       cellranger.res.dirs,
       c(
         'filtered_feature_bc_matrix.h5',

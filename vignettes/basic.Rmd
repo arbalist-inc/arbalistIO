@@ -99,7 +99,7 @@ promoters <- GRanges(
 mae <- createArbalistMAE(
   sample.names = "MockSample",
   fragment.files = fragment_file,
-  filtered.feature.matrix.files = h5_file,
+  feature.matrix.files = h5_file,
   output.dir = tmp_dir,
   gene.grs = promoters,
   tile.size = 500,
