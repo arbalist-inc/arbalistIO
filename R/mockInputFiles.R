@@ -99,7 +99,7 @@ mockFragmentFile <- function(output.file,
 #' @examples
 #' temp <- tempfile(fileext = ".h5")
 #' mockCellRangerH5(temp, cell.names = LETTERS)
-#' h5ls(temp)
+#' rhdf5::h5ls(temp)
 #'
 #' @author Jayaram Kancherla
 #'

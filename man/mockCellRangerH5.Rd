@@ -25,7 +25,7 @@ Mock up a Cell Ranger h5 file for examples and testing.
 \examples{
 temp <- tempfile(fileext = ".h5")
 mockCellRangerH5(temp, cell.names = LETTERS)
-h5ls(temp)
+rhdf5::h5ls(temp)
 
 }
 \author{
