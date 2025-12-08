@@ -18,7 +18,7 @@ test_that("createArbalistMAE works", {
   )
 
   feat_file <- paste0(tmp_dir, "/", "filtered_feature_bc_matrix.h5")
-  mockCellRangerH5(feat_file, n_genes = 10, n_cells = 5)
+  mockCellRangerH5(feat_file, n.genes = 10, n.cells = 5, cell.names = LETTERS[1:5])
 
   gene_grs <- GRanges("chr1", IRanges(10, 100))
 
