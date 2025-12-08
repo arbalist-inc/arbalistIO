@@ -62,28 +62,10 @@ TODO: add this as a function to the package.
 ```{r mock_h5}
 h5_file <- file.path(tmp_dir, "filtered_feature_bc_matrix.h5")
 
-if (file.exists(h5_file)) file.remove(h5_file)
-h5createFile(h5_file)
-h5createGroup(h5_file, "matrix")
-h5createGroup(h5_file, "matrix/features")
+mockCellRangerH5(h5_file, 
+                 n.cells=50,
+                 cell.names = cell_names)
 
-barcodes <- paste0(cell_names, "-1") 
-h5write(barcodes, h5_file, "matrix/barcodes")
-
-n_genes <- 10
-h5write(paste0("GENE", 1:n_genes), h5_file, "matrix/features/id")
-h5write(paste0("Gene", 1:n_genes), h5_file, "matrix/features/name")
-h5write(rep("Gene Expression", n_genes), h5_file, "matrix/features/feature_type")
-h5write(rep("chr1:1-100", n_genes), h5_file, "matrix/features/interval")
-h5write(rep("Genome1", n_genes), h5_file, "matrix/features/genome")
-
-set.seed(42)
-counts <- Matrix(rpois(n_genes * 50, lambda = 2), nrow = n_genes, sparse = TRUE)
-
-h5write(as.vector(counts@x), h5_file, "matrix/data")
-h5write(as.vector(counts@i), h5_file, "matrix/indices")
-h5write(as.vector(counts@p), h5_file, "matrix/indptr")
-h5write(dim(counts), h5_file, "matrix/shape")
 ```
 
 ## 2. Creating the MultiAssayExperiment
