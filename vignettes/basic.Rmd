@@ -57,7 +57,6 @@ mockFragmentFile(
 
 `createArbalistMAE` requires the Cell Ranger filtered feature matrix (HDF5) to identify valid barcodes.
 
-TODO: add this as a function to the package.
 
 ```{r mock_h5}
 h5_file <- file.path(tmp_dir, "filtered_feature_bc_matrix.h5")
