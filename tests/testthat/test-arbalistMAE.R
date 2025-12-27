@@ -22,14 +22,16 @@ test_that("createArbalistMAE works", {
 
   gene_grs <- GRanges("chr1", IRanges(10, 100))
 
-  mae <- createArbalistMAE(
-    sample.names = sample_name,
-    fragment.files = frag_file,
-    filtered.feature.matrix.files = feat_file,
-    output.dir = tmp_dir,
-    gene.grs = gene_grs,
-    seq.lengths = seq_lengths,
-    tile.size = 200
+  mae <- suppressWarnings(
+    createArbalistMAE(
+      sample.names = sample_name,
+      fragment.files = frag_file,
+      filtered.feature.matrix.files = feat_file,
+      output.dir = tmp_dir,
+      gene.grs = gene_grs,
+      seq.lengths = seq_lengths,
+      tile.size = 200
+    )
   )
 
   expect_s4_class(mae, "MultiAssayExperiment")
