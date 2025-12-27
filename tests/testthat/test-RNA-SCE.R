@@ -40,4 +40,5 @@ test_that("createRNASCE handles multiple samples", {
 
   expect_equal(ncol(sce), 5+10)
   expect_equal(unique(colData(sce)$Sample), c("S1", "S2"))
+  
 })

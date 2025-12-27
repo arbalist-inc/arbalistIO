@@ -84,36 +84,24 @@ createRNASCE <- function(h5.files,
   
   colData(se.all.samples)$Sample <- sub('#.*$', '', colnames(se.all.samples))
   
-  # combineCols sets NA for missing features, should we replace this with 0's?
-  # if ("counts" %in% assayNames(se.all.samples)) {
-  #   mat <- assay(se.all.samples, "counts")
-  #   if (any(is.na(mat))) {
-  #     mat[is.na(mat)] <- 0
-  #     assay(se.all.samples, "counts") <- mat
-  #   }
-  # }
   
-  # if intervals are specified in the feature information, then set the rowRanges for the experiment
-  if ("interval" %in% colnames(rowData(se.all.samples))) {
-    na.features <- which(rowData(se.all.samples)$interval == 'NA')
-    if (!any(na.features)) {
-      row.data <- rowData(se.all.samples)
-      rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
-      rowData(se.all.samples) <- row.data
-    } else if (filter.features.without.intervals) {
-      warning(
-        paste0(
-          'Removing the following rows so that we can specify the rowRanges for all features: ',
-          paste0(rowData(se.all.samples)[na.features, "name"], collapse = ', '),
-          ". Set the filter.features.without.intervals argument to FALSE to skip adding rowRanges."
-        )
-      )
-      se.all.samples <- se.all.samples[rowData(se.all.samples)$interval != 'NA', ]
-      row.data <- rowData(se.all.samples)
-      rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
-      rowData(se.all.samples) <- row.data
+
+  if (filter.features.without.intervals) {
+
+    no.na.features <- which(rowData(se.all.samples)$interval != 'NA')
+    
+    if (any(!no.na.features)){
+      warning("removing genes without intervals")
     }
+    
+    se.all.samples <- se.all.samples[no.na.features,]
+    row.data <- rowData(se.all.samples)
+    rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
+    rowData(se.all.samples) <- row.data
+
+  
   }
+  
   
   sce <- as(se.all.samples, 'SingleCellExperiment')
   mainExpName(sce) <- 'GeneExpressionMatrix'
