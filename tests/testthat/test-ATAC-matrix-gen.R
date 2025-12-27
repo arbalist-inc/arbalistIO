@@ -60,9 +60,13 @@ test_that("saveRegionMatrix handles overlaps", {
 })
 
 test_that("saveTileMatrix fails on missing inputs", {
-  expect_error(saveTileMatrix(
-    fragment.file = "nonexistent.tsv.gz",
-    output.file = "out.h5",
-    output.name = "test"
-  ))
+  expect_error(
+    suppressWarnings(
+      saveTileMatrix(
+        fragment.file = "nonexistent.tsv.gz",
+        output.file = "out.h5",
+        output.name = "test"
+      )
+    )
+  )
 })
