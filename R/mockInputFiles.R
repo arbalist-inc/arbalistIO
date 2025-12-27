@@ -122,7 +122,7 @@ mockCellRangerH5 <- function(
   
   if(is.null(cell.names) && is.null(n.cells)) {
     stop("either n.cells or cell.names must be provided")
-  } else if(!is.null(n.cells) && is.null(n.cells)) {
+  } else if(!is.null(cell.names) && is.null(n.cells)) {
     n.cells <- length((cell.names))
   } else if(is.null(cell.names) && !is.null(n.cells)) {
     cell.names <- paste0("Cell", seq_len(n.cells))
