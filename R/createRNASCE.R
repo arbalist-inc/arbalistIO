@@ -34,8 +34,8 @@ createRNASCE <- function(h5.files,
   # collect potential RNA files for each
   names(h5.files) <- sample.names
   
-  se.all.samples <- NULL
-  for (y in 1:length(h5.files)) {
+  se_list <- list()
+  for (y in seq_along(h5.files)) {
     feature.matrix <- h5.files[y]
     sample.name <- sample.names[y]
     
@@ -67,20 +67,26 @@ createRNASCE <- function(h5.files,
     
     # select the RNA features from the Cell Ranger results
     if ('feature_type' %in% colnames(rowData(se))) {
-      se <- se[which(rowData(se)$feature_type == feature.type)]
+      se <- se[which(rowData(se)$feature_type == feature.type), ]
     }
     
     gc()
     
-    # combine sample results together
-    if (is.null(se.all.samples)) {
-      se.all.samples <- se
-    } else {
-      se.all.samples <- SummarizedExperiment::cbind(se.all.samples, se)
-    }
+    colData(se)$Sample <- sample.name
+    se_list[[sample.name]] <- se
+    gc()
   }
   
-  colData(se.all.samples)$Sample <- sub('#.*$', '', colnames(se.all.samples))
+  se.all.samples <- do.call(SummarizedExperiment::combineCols, unname(se_list))
+  
+  # combineCols sets NA for missing features, should we replace this with 0's?
+  # if ("counts" %in% assayNames(se.all.samples)) {
+  #   mat <- assay(se.all.samples, "counts")
+  #   if (any(is.na(mat))) {
+  #     mat[is.na(mat)] <- 0
+  #     assay(se.all.samples, "counts") <- mat
+  #   }
+  # }
   
   # if intervals are specified in the feature information, then set the rowRanges for the experiment
   if ("interval" %in% colnames(rowData(se.all.samples))) {
