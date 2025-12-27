@@ -145,6 +145,10 @@ Column names are set to the cell barcodes - if <code>barcodes</code> is supplied
   overlap the same tile, the tile's count is only incremented by 1. This
   ensures that the count for each entry of <code>regions</code> still follows
   Poisson noise and avoids an artificial enrichment of even counts.</p>
+<p>Start positions are inclusive and end positions are exclusive in fragments
+  files according to <a href="https://www.10xgenomics.com/support/software/cell-ranger-atac/latest/analysis/outputs/fragments-file" class="external-link">10x genomics</a>.</p>
+<p>The <code>ReadSupport</code> column is ignored because we only consider unique fragments.
+  Refer to <a href="https://www.10xgenomics.com/support/software/cell-ranger-arc/latest/algorithms-overview/algorithms-overview#atac-dup-marking" class="external-link">ATAC duplicate marking</a>.</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -182,18 +186,18 @@ Column names are set to the cell barcodes - if <code>barcodes</code> is supplied
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $counts</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;24 x 26&gt; sparse DelayedMatrix object of type "integer":</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         T   M   X   Z ...   C   R   B   G</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 123 123 117 116   . 142 127 155 111</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 186 198 195 173   . 184 184 179 149</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 220 198 216 204   . 248 208 237 188</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 271 262 274 217   . 276 253 235 234</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,]  34  29  22  21   .  18  22  27  21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         P   K   M   B ...   N   E   F   G</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 127 127 124 128   . 136 122 113 118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 181 198 173 203   . 198 167 185 163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 196 231 198 215   . 231 213 217 215</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 253 239 258 248   . 265 282 242 224</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,]  26  21  21  34   .  17  25  26  25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ...   .   .   .   .   .   .   .   .   .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [20,]  43  44  37  43   .  43  45  35  48</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21,]  45  39  44  47   .  46  40  36  46</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [22,]  43  34  45  45   .  49  49  39  49</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [23,]  48  38  48  52   .  51  43  48  31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [24,]  58  56  48  53   .  62  56  57  44</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [20,]  32  38  32  34   .  43  43  52  35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21,]  44  48  35  58   .  50  49  39  36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [22,]  44  45  37  33   .  39  52  40  42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [23,]  50  49  44  53   .  35  49  42  43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [24,]  53  46  57  59   .  44  47  49  44</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

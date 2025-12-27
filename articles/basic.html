@@ -134,32 +134,12 @@ containing reads for 50 cells.</p>
 </h3>
 <p><code>createArbalistMAE</code> requires the Cell Ranger filtered
 feature matrix (HDF5) to identify valid barcodes.</p>
-<p>TODO: add this as a function to the package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">h5_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmp_dir</span>, <span class="st">"filtered_feature_bc_matrix.h5"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">h5_file</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.remove</a></span><span class="op">(</span><span class="va">h5_file</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_createFile.html" class="external-link">h5createFile</a></span><span class="op">(</span><span class="va">h5_file</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_createGroup.html" class="external-link">h5createGroup</a></span><span class="op">(</span><span class="va">h5_file</span>, <span class="st">"matrix"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_createGroup.html" class="external-link">h5createGroup</a></span><span class="op">(</span><span class="va">h5_file</span>, <span class="st">"matrix/features"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">barcodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">cell_names</span>, <span class="st">"-1"</span><span class="op">)</span> </span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="va">barcodes</span>, <span class="va">h5_file</span>, <span class="st">"matrix/barcodes"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">n_genes</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"GENE"</span>, <span class="fl">1</span><span class="op">:</span><span class="va">n_genes</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/features/id"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Gene"</span>, <span class="fl">1</span><span class="op">:</span><span class="va">n_genes</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/features/name"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Gene Expression"</span>, <span class="va">n_genes</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/features/feature_type"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"chr1:1-100"</span>, <span class="va">n_genes</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/features/interval"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Genome1"</span>, <span class="va">n_genes</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/features/genome"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/Matrix.html" class="external-link">Matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="va">n_genes</span> <span class="op">*</span> <span class="fl">50</span>, lambda <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n_genes</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">counts</span><span class="op">@</span><span class="va">x</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/data"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">counts</span><span class="op">@</span><span class="va">i</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/indices"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">counts</span><span class="op">@</span><span class="va">p</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/indptr"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_write.html" class="external-link">h5write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span>, <span class="va">h5_file</span>, <span class="st">"matrix/shape"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/mockCellRangerH5.html">mockCellRangerH5</a></span><span class="op">(</span><span class="va">h5_file</span>, </span>
+<span>                 n.cells<span class="op">=</span><span class="fl">50</span>,</span>
+<span>                 cell.names <span class="op">=</span> <span class="va">cell_names</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -191,7 +171,7 @@ matrix.</p>
 <span><span class="co">#&gt;  Containing an ExperimentList class object of length 3:</span></span>
 <span><span class="co">#&gt;  [1] TileMatrix500: SingleCellExperiment with 30 rows and 50 columns</span></span>
 <span><span class="co">#&gt;  [2] GeneAccessibilityMatrix: SingleCellExperiment with 5 rows and 50 columns</span></span>
-<span><span class="co">#&gt;  [3] GeneExpressionMatrix: SingleCellExperiment with 10 rows and 50 columns</span></span>
+<span><span class="co">#&gt;  [3] GeneExpressionMatrix: SingleCellExperiment with 50 rows and 50 columns</span></span>
 <span><span class="co">#&gt; Functionality:</span></span>
 <span><span class="co">#&gt;  experiments() - obtain the ExperimentList instance</span></span>
 <span><span class="co">#&gt;  colData() - the primary/phenotype DataFrame</span></span>
@@ -234,7 +214,7 @@ HDF5 file.</li>
 <span><span class="va">rna</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://github.com/waldronlab/MultiAssayExperiment/reference/MultiAssayExperiment-methods.html" class="external-link">experiments</a></span><span class="op">(</span><span class="va">mae</span><span class="op">)</span><span class="op">[[</span><span class="st">"GeneExpressionMatrix"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rna</span><span class="op">)</span></span>
 <span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 10 50 </span></span>
+<span><span class="co">#&gt; dim: 50 50 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(1): counts</span></span>
 <span><span class="co">#&gt; rownames: NULL</span></span>
@@ -250,7 +230,7 @@ HDF5 file.</li>
 <span><span class="co">#&gt; DataFrame with 1 row and 1 column</span></span>
 <span><span class="co">#&gt;                     fragment_file</span></span>
 <span><span class="co">#&gt;                       &lt;character&gt;</span></span>
-<span><span class="co">#&gt; MockSample /tmp/Rtmpi4YJ9y/frag..</span></span></code></pre></div>
+<span><span class="co">#&gt; MockSample /tmp/RtmpTCuncL/frag..</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -295,18 +275,18 @@ tiles.</p>
 <span><span class="co">#&gt;   seqinfo: 2 sequences from an unspecified genome</span></span>
 <span><span class="va">tile_res</span><span class="op">$</span><span class="va">counts</span></span>
 <span><span class="co">#&gt; &lt;15 x 50&gt; sparse DelayedMatrix object of type "integer":</span></span>
-<span><span class="co">#&gt;        Cell2  Cell5 Cell22 Cell15 ... Cell43 Cell35 Cell46 Cell28</span></span>
-<span><span class="co">#&gt;  [1,]    238    217    236    243   .    262    247    247    237</span></span>
-<span><span class="co">#&gt;  [2,]    353    341    374    387   .    372    394    395    415</span></span>
-<span><span class="co">#&gt;  [3,]    377    412    386    350   .    364    367    399    405</span></span>
-<span><span class="co">#&gt;  [4,]    397    412    399    358   .    404    395    342    408</span></span>
-<span><span class="co">#&gt;  [5,]    398    379    380    393   .    388    399    353    382</span></span>
+<span><span class="co">#&gt;       Cell49 Cell10  Cell2 Cell16 ... Cell43 Cell35 Cell46 Cell28</span></span>
+<span><span class="co">#&gt;  [1,]    241    259    238    258   .    262    248    247    237</span></span>
+<span><span class="co">#&gt;  [2,]    369    392    351    359   .    371    394    394    415</span></span>
+<span><span class="co">#&gt;  [3,]    369    401    376    354   .    364    366    400    404</span></span>
+<span><span class="co">#&gt;  [4,]    370    415    397    357   .    404    396    340    408</span></span>
+<span><span class="co">#&gt;  [5,]    371    375    397    371   .    387    398    353    381</span></span>
 <span><span class="co">#&gt;   ...      .      .      .      .   .      .      .      .      .</span></span>
-<span><span class="co">#&gt; [11,]    495    514    500    486   .    452    475    497    460</span></span>
-<span><span class="co">#&gt; [12,]    752    775    745    741   .    722    768    739    709</span></span>
-<span><span class="co">#&gt; [13,]    749    760    763    724   .    718    764    747    704</span></span>
-<span><span class="co">#&gt; [14,]    746    779    754    745   .    769    763    745    776</span></span>
-<span><span class="co">#&gt; [15,]    759    730    764    779   .    794    758    737    763</span></span></code></pre></div>
+<span><span class="co">#&gt; [11,]    495    496    496    494   .    454    475    497    462</span></span>
+<span><span class="co">#&gt; [12,]    761    715    750    771   .    724    765    740    710</span></span>
+<span><span class="co">#&gt; [13,]    718    744    748    768   .    717    764    747    705</span></span>
+<span><span class="co">#&gt; [14,]    716    755    746    715   .    769    761    745    774</span></span>
+<span><span class="co">#&gt; [15,]    735    741    757    752   .    793    757    737    761</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="generating-a-region-matrix">Generating a Region Matrix<a class="anchor" aria-label="anchor" href="#generating-a-region-matrix"></a>
@@ -328,9 +308,9 @@ specific genomic regions</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">region_mat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;2 x 50&gt; sparse DelayedMatrix object of type "raw":</span></span>
-<span><span class="co">#&gt;       Cell2  Cell5 Cell22 ... Cell46 Cell28</span></span>
-<span><span class="co">#&gt; [1,]     37     28     2b   .     31     2c</span></span>
-<span><span class="co">#&gt; [2,]     5e     68     58   .     58     56</span></span></code></pre></div>
+<span><span class="co">#&gt;      Cell49 Cell10  Cell2 ... Cell46 Cell28</span></span>
+<span><span class="co">#&gt; [1,]     2b     3a     37   .     31     2c</span></span>
+<span><span class="co">#&gt; [2,]     5e     59     5e   .     58     56</span></span></code></pre></div>
 <p>That’s it! For analyzing multiome datasets, check out the arbalist
 package.</p>
 </div>
