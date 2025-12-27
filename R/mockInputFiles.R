@@ -120,6 +120,12 @@ mockCellRangerH5 <- function(
     stop("rhdf5 package is required for testing")
   }
   
+  if (is.null(cell.names)) {
+    cell.names <- paste0("Cell", seq_len(n.cells))
+  } else if(n.cells != length(cell.names)) {
+      stop("n.cells and cell.names do not match")
+  }
+  
   h5createFile(filepath)
   h5createGroup(filepath, "matrix")
   
@@ -148,7 +154,9 @@ mockCellRangerH5 <- function(
   feature_types <- rep("Gene Expression", n.genes)
   
   # Add intervals for half, some NA's to test filter.features.without.intervals
-  intervals <- c(rep("chr1:100-200", n.genes / 2), rep("NA", n.genes / 2))
+  n_with_intervals <- ceiling(n.genes / 2)
+  n_na <- n.genes - n_with_intervals
+  intervals <- c(rep("chr1:100-200", n_with_intervals), rep("NA", n_na))
   
   h5write(feature_ids, filepath, "matrix/features/id")
   h5write(feature_names, filepath, "matrix/features/name")
