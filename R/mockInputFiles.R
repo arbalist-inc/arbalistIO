@@ -108,7 +108,7 @@ mockFragmentFile <- function(output.file,
 mockCellRangerH5 <- function(
     filepath,
     n.genes = 100,
-    n.cells = 50,
+    n.cells = NULL,
     cell.names = NULL
 ) {
   
@@ -120,10 +120,14 @@ mockCellRangerH5 <- function(
     stop("rhdf5 package is required for testing")
   }
   
-  if (is.null(cell.names)) {
+  if(is.null(cell.names) && is.null(n.cells)) {
+    stop("either n.cells or cell.names must be provided")
+  } else if(!is.null(n.cells) && is.null(n.cells)) {
+    n.cells <- length((cell.names))
+  } else if(is.null(cell.names) && !is.null(n.cells)) {
     cell.names <- paste0("Cell", seq_len(n.cells))
   } else if(n.cells != length(cell.names)) {
-      stop("n.cells and cell.names do not match")
+    stop("n.cells and cell.names do not match")
   }
   
   h5createFile(filepath)

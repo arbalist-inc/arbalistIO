@@ -4,7 +4,7 @@
 \alias{mockCellRangerH5}
 \title{Create a mock Cell Ranger h5 file}
 \usage{
-mockCellRangerH5(filepath, n.genes = 100, n.cells = 50, cell.names = NULL)
+mockCellRangerH5(filepath, n.genes = 100, n.cells = NULL, cell.names = NULL)
 }
 \arguments{
 \item{filepath}{String containing a path to the output file.}
