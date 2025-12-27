@@ -21,7 +21,7 @@
 #' @importFrom GenomicRanges GRanges
 #' @importFrom Matrix sparseMatrix
 #' @importFrom rhdf5 h5read
-#' @importFrom S4Vectors SimpleList
+#' @importFrom S4Vectors SimpleList combineCols
 #' @importFrom SingleCellExperiment mainExpName<-
 #' @importFrom SummarizedExperiment SummarizedExperiment cbind rowData
 #'   rowRanges<- rowData<-
@@ -34,7 +34,7 @@ createRNASCE <- function(h5.files,
   # collect potential RNA files for each
   names(h5.files) <- sample.names
   
-  se_list <- list()
+  se.all.samples <- NULL
   for (y in seq_along(h5.files)) {
     feature.matrix <- h5.files[y]
     sample.name <- sample.names[y]
@@ -70,14 +70,19 @@ createRNASCE <- function(h5.files,
       se <- se[which(rowData(se)$feature_type == feature.type), ]
     }
     
-    gc()
-    
     colData(se)$Sample <- sample.name
-    se_list[[sample.name]] <- se
+    
+    # combine sample results together
+    if (is.null(se.all.samples)) {
+      se.all.samples <- se
+    } else {
+      se.all.samples <- combineCols(se.all.samples, se)
+    }
+    
     gc()
   }
   
-  se.all.samples <- do.call(SummarizedExperiment::combineCols, unname(se_list))
+  colData(se.all.samples)$Sample <- sub('#.*$', '', colnames(se.all.samples))
   
   # combineCols sets NA for missing features, should we replace this with 0's?
   # if ("counts" %in% assayNames(se.all.samples)) {
