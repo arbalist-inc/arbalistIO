@@ -16,7 +16,7 @@
 #' @param sample.annotation.files String vector containing sample annotation to
 #'   put in the MultiAssayExperiment colData. ex. 10x Cell Ranger result output
 #'   summary.csv
-#' @param multiome Logical whether to use createMultiomeRNASCE on the
+#' @param multiome Logical whether to use createRNASCE on the
 #'   filtered.feature.matrix.files to extract the RNA features and create a
 #'   SingleCellExperiment. If NULL, then will become TRUE if
 #'   filtered.feature.matrix.files contain "filtered_feature_bc_matrix.h5"
@@ -43,7 +43,7 @@
 #' @param filter.rna.features.without.intervals Logical whether to remove
 #'   GeneExpression Matrix features from the h5.files that do not have interval
 #'   specified. Often these are mitochondria genes.
-#' @inheritParams createMultiomeRNASCE
+#' @inheritParams createRNASCE
 #' @inheritParams getExpListFromFragments
 #'
 #' @return A \linkS4class{MultiAssayExperiment}
@@ -182,7 +182,7 @@ createArbalistMAE <- function(sample.names,
   }
   
   if (multiome) {
-    all.exp[['GeneExpressionMatrix']] <- createMultiomeRNASCE(
+    all.exp[['GeneExpressionMatrix']] <- createRNASCE(
       h5.files = filtered.feature.matrix.files,
       sample.names = sample.names,
       filter.features.without.intervals = filter.rna.features.without.intervals

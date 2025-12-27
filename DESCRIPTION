@@ -12,6 +12,7 @@ Authors@R: c(
     person("Jayaram", "Kancherla", email = "jayaram.kancherla@gmail.com", role = c("aut", "cre"))
     )
 License: MIT + file LICENSE
+Encoding: UTF-8
 LinkingTo:
     Rcpp,
     Rhdf5lib,

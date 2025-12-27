@@ -21,21 +21,21 @@
 #' @importFrom GenomicRanges GRanges
 #' @importFrom Matrix sparseMatrix
 #' @importFrom rhdf5 h5read
-#' @importFrom S4Vectors SimpleList
+#' @importFrom S4Vectors SimpleList combineCols
 #' @importFrom SingleCellExperiment mainExpName<-
 #' @importFrom SummarizedExperiment SummarizedExperiment cbind rowData
 #'   rowRanges<- rowData<-
 #' @importFrom utils object.size read.csv
 #' @export
-createMultiomeRNASCE <- function(h5.files,
-                                 sample.names = NULL,
-                                 feature.type = 'Gene Expression',
-                                 filter.features.without.intervals = TRUE) {
+createRNASCE <- function(h5.files,
+                         sample.names = NULL,
+                         feature.type = 'Gene Expression',
+                         filter.features.without.intervals = TRUE) {
   # collect potential RNA files for each
   names(h5.files) <- sample.names
   
   se.all.samples <- NULL
-  for (y in 1:length(h5.files)) {
+  for (y in seq_along(h5.files)) {
     feature.matrix <- h5.files[y]
     sample.name <- sample.names[y]
     
@@ -67,42 +67,41 @@ createMultiomeRNASCE <- function(h5.files,
     
     # select the RNA features from the Cell Ranger results
     if ('feature_type' %in% colnames(rowData(se))) {
-      se <- se[which(rowData(se)$feature_type == feature.type)]
+      se <- se[which(rowData(se)$feature_type == feature.type), ]
     }
     
-    gc()
+    colData(se)$Sample <- sample.name
     
     # combine sample results together
     if (is.null(se.all.samples)) {
       se.all.samples <- se
     } else {
-      se.all.samples <- SummarizedExperiment::cbind(se.all.samples, se)
+      se.all.samples <- combineCols(se.all.samples, se)
     }
+    
+    gc()
   }
   
   colData(se.all.samples)$Sample <- sub('#.*$', '', colnames(se.all.samples))
   
-  # if intervals are specified in the feature information, then set the rowRanges for the experiment
-  if ("interval" %in% colnames(rowData(se.all.samples))) {
-    na.features <- which(rowData(se.all.samples)$interval == 'NA')
-    if (!any(na.features)) {
-      row.data <- rowData(se.all.samples)
-      rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
-      rowData(se.all.samples) <- row.data
-    } else if (filter.features.without.intervals) {
-      warning(
-        paste0(
-          'Removing the following rows so that we can specify the rowRanges for all features: ',
-          paste0(rowData(se.all.samples)[na.features, "name"], collapse = ', '),
-          ". Set the filter.features.without.intervals argument to FALSE to skip adding rowRanges."
-        )
-      )
-      se.all.samples <- se.all.samples[rowData(se.all.samples)$interval != 'NA', ]
-      row.data <- rowData(se.all.samples)
-      rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
-      rowData(se.all.samples) <- row.data
+  
+
+  if (filter.features.without.intervals) {
+
+    no.na.features <- which(rowData(se.all.samples)$interval != 'NA')
+    
+    if (any(!no.na.features)){
+      warning("removing genes without intervals")
     }
+    
+    se.all.samples <- se.all.samples[no.na.features,]
+    row.data <- rowData(se.all.samples)
+    rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
+    rowData(se.all.samples) <- row.data
+
+  
   }
+  
   
   sce <- as(se.all.samples, 'SingleCellExperiment')
   mainExpName(sce) <- 'GeneExpressionMatrix'

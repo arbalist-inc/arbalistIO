@@ -72,6 +72,12 @@ We count the overlap with the start/end positions of each fragment,
   overlap the same tile, the tile's count is only incremented by 1. This
   ensures that the count for each entry of \code{regions} still follows
   Poisson noise and avoids an artificial enrichment of even counts.
+  
+  Start positions are inclusive and end positions are exclusive in fragments
+  files according to \href{https://www.10xgenomics.com/support/software/cell-ranger-atac/latest/analysis/outputs/fragments-file}{10x genomics}.
+  
+  The \code{ReadSupport} column is ignored because we only consider unique fragments. 
+  Refer to \href{https://www.10xgenomics.com/support/software/cell-ranger-arc/latest/algorithms-overview/algorithms-overview#atac-dup-marking}{ATAC duplicate marking}.
 }
 \examples{
 # Mocking up the fragment file.

@@ -46,7 +46,7 @@ summary.csv}
 \item{output.dir}{String containing the directory where files should be
 output while creating the \linkS4class{MultiAssayExperiment}.}
 
-\item{multiome}{Logical whether to use createMultiomeRNASCE on the
+\item{multiome}{Logical whether to use createRNASCE on the
 filtered.feature.matrix.files to extract the RNA features and create a
 SingleCellExperiment. If NULL, then will become TRUE if
 filtered.feature.matrix.files contain "filtered_feature_bc_matrix.h5"
