@@ -112,19 +112,28 @@ saveRegionMatrix <- function(fragment.file,
 #' @importClassesFrom GenomicRanges GRanges
 .sanitizeRegions <- function(regions, decompose = TRUE) {
   if (is(regions, "GRangesList")) {
-    regions <- reduce(regions, ignore.strand = TRUE) # eliminating overlaps within each GRanges
+    tmp <- unlist(regions)
+  } else {
+    tmp <- regions
   }
-  solo <- as(slice(coverage(regions), lower = 1, upper = 1), "GRanges") # only considering intervals with coverage of exactly 1.
-  overlap <- findOverlaps(solo, regions, select = "first")
+  olap <- findOverlaps(tmp, ignore.strand=TRUE)
+  non.self <- queryHits(olap) != subjectHits(olap)
+  partners <- splitAsList(tmp[subjectHits(olap)[non.self]], queryHits(olap)[non.self])
+  raw.solo <- as(tmp, "GRangesList")
+  i <- as.integer(names(partners))
+  raw.solo[i] <- psetdiff(tmp[i], partners, ignore.strand=TRUE)
+  solo <- unlist(raw.solo) # only considering intervals with coverage of exactly 1.
+  
+  overlap <- findOverlaps(solo, tmp, select = "first") #output the first index of the tmp overlapping with each region in solo
   
   if (!decompose) {
     return(list(regions = solo, ids = overlap))
   }
   
   seqnames <- as.character(seqnames(solo))
-  by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices
-  starts <- split(start(solo) - 1L, seqnames) # get to 0-based starts.
-  ends <- split(end(solo), seqnames) # leave as open ends.
+  by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices # this maps the sanitized regions to tmp by the index of tmp
+  starts <- split(start(solo), seqnames) # get to 0-based starts.
+  ends <- split(end(solo) + 2L, seqnames) # leave as open ends.
   
   for (s in names(by_ids)) {
     o <- order(starts[[s]])
