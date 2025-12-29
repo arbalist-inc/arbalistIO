@@ -108,7 +108,8 @@ saveRegionMatrix <- function(fragment.file,
 #' @import methods
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom BiocGenerics setdiff start end
-#' @importFrom IRanges reduce coverage slice findOverlaps
+#' @importFrom IRanges reduce coverage slice findOverlaps psetdiff
+#' @importFrom S4Vectors queryHits subjectHits splitAsList
 #' @importClassesFrom GenomicRanges GRanges
 .sanitizeRegions <- function(regions, decompose = TRUE) {
   if (is(regions, "GRangesList")) {
@@ -116,6 +117,15 @@ saveRegionMatrix <- function(fragment.file,
   } else {
     tmp <- regions
   }
+  
+  # Check sorting of regions
+  tmp_check <- split(tmp, seqnames(tmp))
+  sorting_check <- sapply(tmp_check, function(x) all(start(x) == sort(start(x))))
+  
+  if (any(!sorting_check)) {
+    stop("Regions not sorted. Sort by sort(regions)")
+  }
+  
   olap <- findOverlaps(tmp, ignore.strand=TRUE)
   non.self <- queryHits(olap) != subjectHits(olap)
   partners <- splitAsList(tmp[subjectHits(olap)[non.self]], queryHits(olap)[non.self])
@@ -132,8 +142,8 @@ saveRegionMatrix <- function(fragment.file,
   
   seqnames <- as.character(seqnames(solo))
   by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices # this maps the sanitized regions to tmp by the index of tmp
-  starts <- split(start(solo), seqnames) # get to 0-based starts.
-  ends <- split(end(solo) + 2L, seqnames) # leave as open ends.
+  starts <- split(start(solo), seqnames) # leave granges start inclusive
+  ends <- split(end(solo), seqnames) # leave granges end as inclusive
   
   for (s in names(by_ids)) {
     o <- order(starts[[s]])

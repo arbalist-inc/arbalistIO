@@ -1,3 +1,4 @@
+test_that("saveTileMatrix counts fragments correctly", {
 # example 1: check for multiple fragments, multiple cells and multiple counts
 
 # fragments
@@ -9,7 +10,7 @@ temp <- tempfile(fileext = ".gz")
 temp.out <- tempfile(fileext=".h5")
 frag.mock <- data.frame(chr=c("chr1", "chr1", "chr1"),
                         start=c(1,490,2),
-                        end=c(100, 1005, 200),
+                        end=c(100,1005,200),
                         cells=c("cell1","cell1","cell2"),
                         counts=c(1,1,2))
 
@@ -42,7 +43,7 @@ counted
 
 #counts
 #   cell1 cell2
-#1.   2     2
+#1.   2     1
 #2.   0     0 
 #3.   1     0
 
@@ -120,3 +121,4 @@ expected_counts <- matrix(as.raw(c(1,0,0,
 colnames(expected_counts) <- paste0("cell",1:7)
 
 expect_identical(as.matrix(counted$counts), expected = expected_counts)
+})

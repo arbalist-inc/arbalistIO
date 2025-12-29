@@ -1,5 +1,5 @@
-# example 1: check for multiple fragments, multiple cells and multiple counts
-
+test_that("saveRegionMatrix counts fragments correctly", {
+  
 # fragments
 # chr1 2 200 cell1 2
 # chr1 490 1005 cell2 1
@@ -31,7 +31,7 @@ close(handle)
 
 
 # test start regions overlap
-regions <- GRanges(c("chr1:490-1000", "chr1:2-50"))
+regions <- GRanges(c("chr1:2-50","chr1:490-1000"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example1", regions=regions)
 counted
 
@@ -42,15 +42,16 @@ counted
 
 # expected counts
 #   cell1 cell2
-#1.   0     1
-#2.   1     0
 
-expected_counts <- matrix(as.raw(c(0, 1, 1, 0)), ncol=2)
+#1.   1     0
+#2.   0     1
+
+expected_counts <- matrix(as.raw(c(1, 0, 0, 1)), ncol=2)
 colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
 
 # test start regions no overlap
-regions <- GRanges(c("chr1:491-1000","chr1:3-50"))
+regions <- GRanges(c("chr1:3-50","chr1:491-1000"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example2", regions=regions)
 counted
 
@@ -68,7 +69,7 @@ colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
 
 # test start regions no overlap
-regions <- GRanges(c("chr1:500-1003","chr1:10-198"))
+regions <- GRanges(c("chr1:10-198","chr1:500-1003"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example3", regions=regions)
 counted
 
@@ -87,7 +88,7 @@ expect_identical(as.matrix(counted), expected = expected_counts)
 
 
 # test end regions overlap
-regions <- GRanges(c("chr1:500-1004","chr1:10-199"))
+regions <- GRanges(c("chr1:10-199","chr1:500-1004"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example4", regions=regions)
 counted
 
@@ -97,10 +98,10 @@ counted
 
 # expected counts
 #   cell1 cell2
-#1.   0     1
 #1.   1     0
+#2.   0     1
 
-expected_counts <- matrix(as.raw(c(0, 1, 1, 0)), ncol=2)
+expected_counts <- matrix(as.raw(c(1, 0, 0, 1)), ncol=2)
 colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
 
@@ -195,3 +196,15 @@ counted
 expected_counts <- matrix(as.raw(c(0, 0, 1, 0)), ncol=2)
 colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
+
+})
+
+test_that("regions are sorted for saveTileMatrix", {
+
+# checking stop if regions are not sorted
+# test nested regions overlap
+regions <- GRanges(c("chr1:1100-1500", "chr1:800-1500"))
+expect_error(saveRegionMatrix(temp, output.file=temp.out, output.name="example10", regions=regions))
+
+
+})

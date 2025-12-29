@@ -46,8 +46,8 @@ mockFragmentFile <- function(output.file,
   number <- num.fragments * length(cell.names)
   seq <- sample(names(seq.lengths), number, replace = TRUE)
   limits <- (seq.lengths - 1L)[seq] # avoid overlapping the end position.
-  starts <- pmax(floor(runif(number) * limits),1)
-  ends <- pmin(starts + floor(runif(number, width.range[1], width.range[2])), limits)
+  starts <- pmax(floor(runif(number) * limits)-1L, 1L)
+  ends <- pmin(starts + floor(runif(number, width.range[1], width.range[2])), limits+1L)
   
   o <- order(factor(seq, names(seq.lengths)), starts)
   df <- data.frame(
