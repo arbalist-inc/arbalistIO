@@ -86,7 +86,8 @@ saveRegionMatrix <- function(fragment.file,
   regions_unsorted <- GenomicRanges::is.unsorted(regions)
   
   if (regions_unsorted) {
-    regions <- GenomicRanges::sort(regions)
+    regions_order <- GenomicRanges::order(regions)
+    regions <- regions[regions_order]
   }
   
   sanitized <- .sanitizeRegions(regions)
@@ -112,7 +113,7 @@ saveRegionMatrix <- function(fragment.file,
   colnames(obs) <- barcodes
   
   if (!is.null(regions_order)){
-    obs <- obs[regions_order]
+    obs <- obs[regions_order,]
   }
   
   obs
@@ -131,13 +132,6 @@ saveRegionMatrix <- function(fragment.file,
     tmp <- regions
   }
   
-  # Check sorting of regions
-  tmp_check <- split(tmp, seqnames(tmp))
-  sorting_check <- sapply(tmp_check, function(x) all(start(x) == sort(start(x))))
-  
-  if (any(!sorting_check)) {
-    stop("Regions not sorted. Sort by sort(regions)")
-  }
   
   olap <- findOverlaps(tmp, ignore.strand=TRUE)
   non.self <- queryHits(olap) != subjectHits(olap)

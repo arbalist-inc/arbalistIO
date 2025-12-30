@@ -211,10 +211,10 @@ counted
 
 # expected counts
 #   cell1 cell2
-#1.   0     0
+#1.   0     0     # since all of it overlapped with 800-1500
 #2.   0     1
 
-expected_counts <- matrix(as.raw(c(0, 0, 1, 0)), ncol=2)
+expected_counts <- matrix(as.raw(c(0, 0, 0, 1)), ncol=2)
 colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
 
