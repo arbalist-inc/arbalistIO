@@ -38,12 +38,11 @@ counted
 
 
 # ranges
-#chr1 2-50 
-#chr1 490-1000
+#chr1:2-50 
+#chr1:490-1000
 
 # expected counts
 #   cell1 cell2
-
 #1.   1     0
 #2.   0     1
 
@@ -57,8 +56,8 @@ counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example2", 
 counted
 
 # ranges
-#chr1 3-50 
-#chr1 490-1000
+#chr1:3-50 
+#chr1:491-1000
 
 # expected counts
 #   cell1 cell2
@@ -70,13 +69,13 @@ colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
 
 # test start regions no overlap
-regions <- GRanges(c("chr1:10-198","chr1:500-1003"))
+regions <- GRanges(c("chr1:10-199","chr1:500-1004"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example3", regions=regions)
 counted
 
 # ranges
-#chr1 10-198 
-#chr1 500-1003
+#chr1:10-199 
+#chr1:500-1004
 
 # expected counts
 #   cell1 cell2
@@ -89,13 +88,13 @@ expect_identical(as.matrix(counted), expected = expected_counts)
 
 
 # test end regions overlap
-regions <- GRanges(c("chr1:10-199","chr1:500-1004"))
+regions <- GRanges(c("chr1:10-200","chr1:500-1005"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example4", regions=regions)
 counted
 
 # ranges
-#chr1 10-199 
-#chr1 500-1004
+#chr1:10-200 
+#chr1:500-1005
 
 # expected counts
 #   cell1 cell2
@@ -115,8 +114,8 @@ counted
 
 
 # ranges
-#chr1 chr1:401-1000
-#chr1 chr1:1001-1500
+#chr1:401-1000
+#chr1:1001-1500
 
 # expected counts
 #   cell1 cell2
@@ -129,8 +128,8 @@ counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example6", 
 counted
 
 # ranges
-#chr1 chr1:1000-1100
-#chr1 chr1:900-1500
+#chr1:800-1100
+#chr1:900-1500
 
 # expected counts
 #   cell1 cell2
@@ -148,8 +147,8 @@ counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example7", 
 counted
 
 # ranges
-#chr1 chr1:890-950
-#chr1 chr1:900-1500
+#chr1:800-950
+#chr1:900-1500
 
 # expected counts
 #   cell1 cell2
@@ -167,8 +166,8 @@ counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example8", 
 counted
 
 # ranges
-#chr1 chr1:800-1500
-#chr1 chr1:900-1500
+#chr1:800-1500
+#chr1:900-1500
 
 # expected counts
 #   cell1 cell2
@@ -186,8 +185,8 @@ counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example9", 
 counted
 
 # ranges
-#chr1 chr1:800-1500
-#chr1 chr1:1100-1500
+#chr1:800-1500
+#chr1:1100-1500
 
 # expected counts
 #   cell1 cell2
@@ -200,14 +199,13 @@ expect_identical(as.matrix(counted), expected = expected_counts)
 
 
 # test sorting of regions
-
 regions <- GRanges(c("chr1:1100-1500", "chr1:800-1500"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example10", regions=regions)
 counted
 
 # ranges
-#chr1 chr1:1100-1500
-#chr1 chr1:800-1500
+#chr1:1100-1500
+#chr1:800-1500
 
 # expected counts
 #   cell1 cell2

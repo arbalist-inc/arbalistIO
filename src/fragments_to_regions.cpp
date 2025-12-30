@@ -107,10 +107,10 @@ public:
 
         // Jumping ahead to the first region that ends after the fragment start.
         // 'start_region_index' should only ever increase, as the fragments are sorted by starts.
-        if (ends[start_region_index] < start_pos) {
+        if (ends[start_region_index] <= start_pos) {
             do {
                 ++start_region_index;
-            } while (start_region_index < nregions && ends[start_region_index] < start_pos);
+            } while (start_region_index < nregions && ends[start_region_index] <= start_pos);
 
             end_region_index = start_region_index;
             if (start_region_index == nregions) {
@@ -121,23 +121,23 @@ public:
         bool has_end = false;
         int end_id = -1;
 
-        if (end_region_index == nregions || starts[end_region_index] > (end_pos - 1)) {
+        if (end_region_index == nregions || starts[end_region_index] >= end_pos) {
             // Moving backwards: searching for the region that starts before the fragment end.
             do { 
                 --end_region_index;
-            } while (end_region_index > start_region_index && starts[end_region_index] > (end_pos - 1));
+            } while (end_region_index > start_region_index && starts[end_region_index] >= end_pos);
 
-            if (starts[end_region_index] <= (end_pos - 1) && ends[end_region_index] > (end_pos - 1)) {
+            if (starts[end_region_index] < end_pos && ends[end_region_index] >= end_pos) {
                 has_end = true;
                 end_id = ids[end_region_index];
             }
         } else {
             // Moving forwards: searching for the region that ends after the fragment end.
-            while (end_region_index < nregions && ends[end_region_index] < (end_pos - 1)) {
+            while (end_region_index < nregions && ends[end_region_index] < end_pos) {
                 ++end_region_index;
             }
 
-            if (end_region_index < nregions && starts[end_region_index] < (end_pos - 1)) {
+            if (end_region_index < nregions && starts[end_region_index] < end_pos) {
                 has_end = true;
                 end_id = ids[end_region_index];
             }
