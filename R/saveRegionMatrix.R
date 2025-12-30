@@ -80,6 +80,15 @@ saveRegionMatrix <- function(fragment.file,
   }
   h5createGroup(output.file, output.name)
   
+  
+  regions_order <- NULL
+  
+  regions_unsorted <- GenomicRanges::is.unsorted(regions)
+  
+  if (regions_unsorted) {
+    regions <- GenomicRanges::sort(regions)
+  }
+  
   sanitized <- .sanitizeRegions(regions)
   
   output <- fragments_to_regions(
@@ -101,6 +110,10 @@ saveRegionMatrix <- function(fragment.file,
     barcodes <- output
   }
   colnames(obs) <- barcodes
+  
+  if (!is.null(regions_order)){
+    obs <- obs[regions_order]
+  }
   
   obs
 }
@@ -142,8 +155,8 @@ saveRegionMatrix <- function(fragment.file,
   
   seqnames <- as.character(seqnames(solo))
   by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices # this maps the sanitized regions to tmp by the index of tmp
-  starts <- split(start(solo), seqnames) # leave granges start inclusive
-  ends <- split(end(solo), seqnames) # leave granges end as inclusive
+  starts <- split(start(solo) - 1L, seqnames) # get to 0-based starts.
+  ends <- split(end(solo), seqnames) # leave as open ends.
   
   for (s in names(by_ids)) {
     o <- order(starts[[s]])

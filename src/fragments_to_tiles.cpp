@@ -96,15 +96,15 @@ public:
             throw std::runtime_error("fragment end (" + std::to_string(end_pos) + ") should be greater than the fragment start (" + std::to_string(start_pos) +") on line " + std::to_string(line_number));
         }
         
-        if (start_pos <= 0) {
-            throw std::runtime_error("fragment start (" + std::to_string(start_pos) + ") should be positive on line " + std::to_string(line_number));
+        if (start_pos < 0) {
+            throw std::runtime_error("fragment start (" + std::to_string(start_pos) + ") should be non-negative on line " + std::to_string(line_number));
         }
 
         int offset = (current_tile_seq_it->second).offset;
-        int start_id = ((start_pos - 1) / tile_size) + offset; // -1 is for converting 0-based fragments files to 1-based granges
+        int start_id = (start_pos / tile_size) + offset; 
         collected[cid].push_back(start_id);
 
-        int end_id = ((end_pos - 2) / tile_size) + offset; //the first -1 is for converting 0-based fragments files to 1-based granges and the second -1 is for correcting the exclusive end position in fragments files 
+        int end_id = ((end_pos - 1) / tile_size) + offset; // -1 is for correcting the exclusive end positions in fragments files 
         if (start_id != end_id) {
             collected[cid].push_back(end_id);
         }

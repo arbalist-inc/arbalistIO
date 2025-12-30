@@ -92,7 +92,7 @@ public:
             end_region_index = 0;
         }
 
-        if ((end_pos-1) <= start_pos) {
+        if (end_pos <= start_pos) {
             throw std::runtime_error("fragment end (" + std::to_string(end_pos) + ") should be greater than the fragment start (" + std::to_string(start_pos) +") on line " + std::to_string(line_number));
         }
 
@@ -121,23 +121,23 @@ public:
         bool has_end = false;
         int end_id = -1;
 
-        if (end_region_index == nregions || starts[end_region_index] > (end_pos-1)) {
+        if (end_region_index == nregions || starts[end_region_index] > (end_pos - 1)) {
             // Moving backwards: searching for the region that starts before the fragment end.
             do { 
                 --end_region_index;
-            } while (end_region_index > start_region_index && starts[end_region_index] > (end_pos-1));
+            } while (end_region_index > start_region_index && starts[end_region_index] > (end_pos - 1));
 
-            if (starts[end_region_index] <= (end_pos-1) && ends[end_region_index] > (end_pos-1)) {
+            if (starts[end_region_index] <= (end_pos - 1) && ends[end_region_index] > (end_pos - 1)) {
                 has_end = true;
                 end_id = ids[end_region_index];
             }
         } else {
             // Moving forwards: searching for the region that ends after the fragment end.
-            while (end_region_index < nregions && ends[end_region_index] < (end_pos-1)) {
+            while (end_region_index < nregions && ends[end_region_index] < (end_pos - 1)) {
                 ++end_region_index;
             }
 
-            if (end_region_index < nregions && starts[end_region_index] < (end_pos-1)) {
+            if (end_region_index < nregions && starts[end_region_index] < (end_pos - 1)) {
                 has_end = true;
                 end_id = ids[end_region_index];
             }

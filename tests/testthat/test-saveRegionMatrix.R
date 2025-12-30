@@ -1,14 +1,14 @@
 test_that("saveRegionMatrix counts fragments correctly", {
   
-# fragments
-# chr1 2 200 cell1 2
-# chr1 490 1005 cell2 1
+# fragments files are 0-based, inclusive starts and exclusive ends
+# chr1 1 200 cell1 2
+# chr1 489 1005 cell2 1
 
 
 temp <- tempfile(fileext = ".gz")
 temp.out <- tempfile(fileext=".h5")
 frag.mock <- data.frame(chr=c("chr1", "chr1"),
-                        start=c(2, 490),
+                        start=c(1, 489),
                         end=c(200, 1005),
                         cells=c("cell1","cell2"),
                         counts=c(2,1))
@@ -29,8 +29,9 @@ write.table(
 
 close(handle)
 
+# regions are 1-based granges with inclusive starts and ends
+# test start regions overlap. 
 
-# test start regions overlap
 regions <- GRanges(c("chr1:2-50","chr1:490-1000"))
 counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example1", regions=regions)
 counted
@@ -197,14 +198,25 @@ expected_counts <- matrix(as.raw(c(0, 0, 1, 0)), ncol=2)
 colnames(expected_counts) <- c("cell1","cell2")
 expect_identical(as.matrix(counted), expected = expected_counts)
 
-})
 
-test_that("regions are sorted for saveTileMatrix", {
+# test sorting of regions
 
-# checking stop if regions are not sorted
-# test nested regions overlap
 regions <- GRanges(c("chr1:1100-1500", "chr1:800-1500"))
-expect_error(saveRegionMatrix(temp, output.file=temp.out, output.name="example10", regions=regions))
+counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="example10", regions=regions)
+counted
+
+# ranges
+#chr1 chr1:1100-1500
+#chr1 chr1:800-1500
+
+# expected counts
+#   cell1 cell2
+#1.   0     0
+#2.   0     1
+
+expected_counts <- matrix(as.raw(c(0, 0, 1, 0)), ncol=2)
+colnames(expected_counts) <- c("cell1","cell2")
+expect_identical(as.matrix(counted), expected = expected_counts)
 
 
 })
