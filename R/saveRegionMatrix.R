@@ -68,6 +68,8 @@
 #' @importFrom utils read.delim
 #' @importFrom rhdf5 h5createFile h5createGroup
 #' @importFrom HDF5Array H5SparseMatrix
+#' @importFrom GenomicRanges GRanges GRangesList
+#' @importClassesFrom GenomicRanges GRanges GRangesList
 saveRegionMatrix <- function(fragment.file,
                              output.file,
                              output.name,
@@ -80,17 +82,8 @@ saveRegionMatrix <- function(fragment.file,
   }
   h5createGroup(output.file, output.name)
   
-  
-  regions_order <- NULL
-  
-  regions_unsorted <- GenomicRanges::is.unsorted(regions)
-  
-  if (regions_unsorted) {
-    regions_order <- GenomicRanges::order(regions)
-    regions <- regions[regions_order]
-  }
-  
-  sanitized <- .sanitizeRegions(regions)
+  solo <- .extractNonOverlaps(regions)
+  sanitized <- .prepareRegions(solo, regions)
   
   output <- fragments_to_regions(
     fragment_file = fragment.file,
@@ -112,26 +105,24 @@ saveRegionMatrix <- function(fragment.file,
   }
   colnames(obs) <- barcodes
   
-  if (!is.null(regions_order)){
-    obs <- obs[regions_order,]
-  }
-  
   obs
 }
 
 #' @import methods
 #' @importFrom GenomeInfoDb seqnames
-#' @importFrom BiocGenerics setdiff start end
+#' @importFrom BiocGenerics setdiff
 #' @importFrom IRanges reduce coverage slice findOverlaps psetdiff
 #' @importFrom S4Vectors queryHits subjectHits splitAsList
-#' @importClassesFrom GenomicRanges GRanges
-.sanitizeRegions <- function(regions, decompose = TRUE) {
-  if (is(regions, "GRangesList")) {
-    tmp <- unlist(regions)
+
+.extractNonOverlaps <- function(regions) {
+
+  if (is(regions, "GRangesList")) { # 
+    tmp <- reduce(regions, ignore.strand = TRUE) # eliminating overlaps within each GRanges. Helpful to merge overlapping exons 
+    # so that fragment counts aren't lost to ambiguity  
+    tmp <- unlist(tmp)
   } else {
     tmp <- regions
   }
-  
   
   olap <- findOverlaps(tmp, ignore.strand=TRUE)
   non.self <- queryHits(olap) != subjectHits(olap)
@@ -140,15 +131,20 @@ saveRegionMatrix <- function(fragment.file,
   i <- as.integer(names(partners))
   raw.solo[i] <- psetdiff(tmp[i], partners, ignore.strand=TRUE)
   solo <- unlist(raw.solo) # only considering intervals with coverage of exactly 1.
+  solo <- sort(solo)
+}
+
+#' @import methods
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom BiocGenerics start end
+#' @importFrom IRanges findOverlaps
+
+.prepareRegions <- function(solo, regions){
   
-  overlap <- findOverlaps(solo, tmp, select = "first") #output the first index of the tmp overlapping with each region in solo
-  
-  if (!decompose) {
-    return(list(regions = solo, ids = overlap))
-  }
-  
+  overlap <- findOverlaps(solo, regions, select = "first") # output the first index of the regions overlapping with each region in solo
+
   seqnames <- as.character(seqnames(solo))
-  by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices # this maps the sanitized regions to tmp by the index of tmp
+  by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices # this maps the sanitized regions to regions by the index of regions
   starts <- split(start(solo) - 1L, seqnames) # get to 0-based starts.
   ends <- split(end(solo), seqnames) # leave as open ends.
   

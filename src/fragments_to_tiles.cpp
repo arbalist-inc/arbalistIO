@@ -49,7 +49,7 @@ public:
     std::unordered_map<std::string, Sequence>::const_iterator current_tile_seq_it;
 
 public:
-    void add(const std::string& seq_name, int start_pos, int end_pos, const std::string& cell_name, int, size_t line_number) {
+    void add(const std::string& seq_name, int fragment_start_pos, int fragment_end_pos, const std::string& cell_name, int, size_t line_number) {
         int cid;
         auto cIt = cell_to_id.find(cell_name);
         if (known_cells) {
@@ -88,23 +88,19 @@ public:
         }
 
         auto slength = (current_tile_seq_it->second).length;
-        if (slength <= start_pos || slength < end_pos) {
-            throw std::runtime_error("fragment boundaries (" + std::to_string(start_pos) + ":" + std::to_string(end_pos) + ") out of range of the sequence length on line " + std::to_string(line_number));
+        if (slength <= fragment_start_pos || slength < fragment_end_pos) {
+            throw std::runtime_error("fragment boundaries (" + std::to_string(fragment_start_pos) + ":" + std::to_string(fragment_end_pos) + ") out of range of the sequence length on line " + std::to_string(line_number));
         }
 
-        if (end_pos <= start_pos) {
-            throw std::runtime_error("fragment end (" + std::to_string(end_pos) + ") should be greater than the fragment start (" + std::to_string(start_pos) +") on line " + std::to_string(line_number));
+        if (fragment_end_pos <= fragment_start_pos) {
+            throw std::runtime_error("fragment end (" + std::to_string(fragment_end_pos) + ") should be greater than the fragment start (" + std::to_string(fragment_start_pos) +") on line " + std::to_string(line_number));
         }
         
-        if (start_pos < 0) {
-            throw std::runtime_error("fragment start (" + std::to_string(start_pos) + ") should be non-negative on line " + std::to_string(line_number));
-        }
-
         int offset = (current_tile_seq_it->second).offset;
-        int start_id = (start_pos / tile_size) + offset; 
+        int start_id = (fragment_start_pos / tile_size) + offset; 
         collected[cid].push_back(start_id);
 
-        int end_id = ((end_pos - 1) / tile_size) + offset; // -1 is for correcting the exclusive end positions in fragments files 
+        int end_id = ((fragment_end_pos - 1) / tile_size) + offset; // -1 is for correcting the exclusive end positions in fragments files 
         if (start_id != end_id) {
             collected[cid].push_back(end_id);
         }
