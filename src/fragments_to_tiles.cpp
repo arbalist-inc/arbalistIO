@@ -47,6 +47,7 @@ public:
 
     std::vector<std::vector<int> > collected;
     std::unordered_map<std::string, Sequence>::const_iterator current_tile_seq_it;
+    int previous_start_pos = 0;
 
 public:
     void add(const std::string& seq_name, int fragment_start_pos, int fragment_end_pos, const std::string& cell_name, int, size_t line_number) {
@@ -72,6 +73,7 @@ public:
             if (current_tile_seq_it == seq_to_id.end()) {
                 throw std::runtime_error("unrecognized sequence name '" + seq_name + "' on line " + std::to_string(line_number));
             }
+            previous_start_pos = 0;
 
         } else if (current_tile_seq_it->first != seq_name) {
             auto sIt = seq_to_id.find(seq_name);
@@ -85,7 +87,13 @@ public:
             }
 
             current_tile_seq_it = sIt;
+            previous_start_pos = 0;
         }
+        
+        if (fragment_start_pos < previous_start_pos) {
+          throw std::runtime_error("fragment start (" + std::to_string(fragment_start_pos) + ") is less than the previous fragment start (" + std::to_string(previous_start_pos) +") on line " + std::to_string(line_number));
+        } 
+        previous_start_pos = fragment_start_pos;
 
         auto slength = (current_tile_seq_it->second).length;
         if (slength <= fragment_start_pos || slength < fragment_end_pos) {
