@@ -3,16 +3,16 @@ test_that("saveTileMatrix counts fragments correctly", {
 
 # fragments files are 0-based, inclusive starts and exclusive ends
 # chr1 0 100 cell1 1
-# chr1 489 1005 cell1 1
 # chr1 1 200 cell2 2
+# chr1 489 1005 cell1 1
 
 temp <- tempfile(fileext = ".gz")
 temp.out <- tempfile(fileext=".h5")
 frag.mock <- data.frame(chr=c("chr1", "chr1", "chr1"),
-                        start=c(0,489,1),
-                        end=c(100,1005,200),
-                        cells=c("cell1","cell1","cell2"),
-                        counts=c(1,1,2))
+                        start=c(0,1,489),
+                        end=c(100,200,1005),
+                        cells=c("cell1","cell2","cell1"),
+                        counts=c(1,2,1))
 
 frag.mock
 
@@ -44,17 +44,16 @@ seq.lengths <- c(chr1=1500)
 #2.   0     0 
 #3.   1     0
 
-expect_error(
-  saveTileMatrix(temp, 
+
+counted <- saveTileMatrix(temp, 
                  output.file=temp.out, 
                  output.name="example2", 
                  seq.lengths=seq.lengths)
-)
 
-# expected_counts <- matrix(as.raw(c(2,0,1,1,0,0)), ncol=2)
-# colnames(expected_counts) <- c("cell1","cell2")
-# 
-# expect_identical(as.matrix(counted$counts), expected = expected_counts)
+expected_counts <- matrix(as.raw(c(2,0,1,1,0,0)), ncol=2)
+colnames(expected_counts) <- c("cell1","cell2")
+
+expect_identical(as.matrix(counted$counts), expected = expected_counts)
 
 
 
