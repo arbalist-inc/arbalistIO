@@ -44,9 +44,10 @@ public:
 
 public:
     int start_region_index = 0, end_region_index = 0;
+    int previous_start_pos = 0;
 
 public:
-    void add(const std::string& seq_name, int start_pos, int end_pos, const std::string& cell_name, int, size_t line_number) {
+    void add(const std::string& seq_name, int fragment_start_pos, int fragment_end_pos, const std::string& cell_name, int, size_t line_number) {
         int cid;
         auto cIt = cell_to_id.find(cell_name);
         if (known_cells) {
@@ -74,6 +75,7 @@ public:
             current_seq_it = sIt;
             start_region_index = 0;
             end_region_index = 0;
+            previous_start_pos = 0;
 
         } else if (current_seq_it->first != seq_name) {
             auto sIt = seq_to_id.find(seq_name);
@@ -90,12 +92,19 @@ public:
             current_seq_it = sIt;
             start_region_index = 0;
             end_region_index = 0;
+            previous_start_pos = 0;
         }
 
-        if (end_pos <= start_pos) {
-            throw std::runtime_error("fragment end (" + std::to_string(end_pos) + ") should be greater than the fragment start (" + std::to_string(start_pos) +") on line " + std::to_string(line_number));
+        if (fragment_end_pos <= fragment_start_pos) {
+            throw std::runtime_error("fragment end (" + std::to_string(fragment_end_pos) + ") should be greater than the fragment start (" + std::to_string(fragment_start_pos) +") on line " + std::to_string(line_number));
         }
-
+        fragment_end_pos -=1; // convert the exclusive fragment end to the last base position of the fragment
+        
+        if (fragment_start_pos < previous_start_pos) {
+            throw std::runtime_error("fragment start (" + std::to_string(fragment_start_pos) + ") is less than the previous fragment start (" + std::to_string(previous_start_pos) +") on line " + std::to_string(line_number));
+        } 
+        previous_start_pos = fragment_start_pos;
+        
         const auto& ids = (current_seq_it->second).ids;
         const auto& starts = (current_seq_it->second).starts;
         const auto& ends = (current_seq_it->second).ends;
@@ -107,10 +116,10 @@ public:
 
         // Jumping ahead to the first region that ends after the fragment start.
         // 'start_region_index' should only ever increase, as the fragments are sorted by starts.
-        if (ends[start_region_index] <= start_pos) {
+        if (ends[start_region_index] <= fragment_start_pos) {
             do {
                 ++start_region_index;
-            } while (start_region_index < nregions && ends[start_region_index] <= start_pos);
+            } while (start_region_index < nregions && ends[start_region_index] <= fragment_start_pos);
 
             end_region_index = start_region_index;
             if (start_region_index == nregions) {
@@ -121,30 +130,30 @@ public:
         bool has_end = false;
         int end_id = -1;
 
-        if (end_region_index == nregions || starts[end_region_index] > end_pos) {
+        if (end_region_index == nregions || starts[end_region_index] > fragment_end_pos) {
             // Moving backwards: searching for the region that starts before the fragment end.
             do { 
                 --end_region_index;
-            } while (end_region_index > start_region_index && starts[end_region_index] > end_pos);
+            } while (end_region_index > start_region_index && starts[end_region_index] > fragment_end_pos);
 
-            if (starts[end_region_index] <= end_pos && ends[end_region_index] > end_pos) {
+            if (starts[end_region_index] <= fragment_end_pos && ends[end_region_index] > fragment_end_pos) {
                 has_end = true;
                 end_id = ids[end_region_index];
             }
         } else {
             // Moving forwards: searching for the region that ends after the fragment end.
-            while (end_region_index < nregions && ends[end_region_index] <= end_pos) {
+            while (end_region_index < nregions && ends[end_region_index] <= fragment_end_pos) {
                 ++end_region_index;
             }
 
-            if (end_region_index < nregions && starts[end_region_index] <= end_pos) {
+            if (end_region_index < nregions && starts[end_region_index] <= fragment_end_pos) {
                 has_end = true;
                 end_id = ids[end_region_index];
             }
         }
 
         // Not counting a fragment twice if it overlaps the same gene.
-        bool has_start = starts[start_region_index] <= start_pos;
+        bool has_start = starts[start_region_index] <= fragment_start_pos;
         int start_id = (has_start ? ids[start_region_index] : -1);
 
         if (has_start && has_end) {
