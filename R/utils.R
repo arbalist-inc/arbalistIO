@@ -1,0 +1,189 @@
+#' Create a SingleCellExperiment from a list of delayed matrices
+#'
+#' Create a SingleCellExperiment from a list of delayed matrices using
+#' AmalgamatedArray.
+#'
+#' @param h5.res.list A list containing delayed matrices with HDF5 backends that
+#'   will be combined using AmalgamatedArray into a SingleCellExperiment. List
+#'   item names should be the sample name for the delayed matrix.
+#' @param grs GRange object to be used for the rowRanges of the resulting
+#'   SingleCellExperiment
+#'
+#' @return A SingleCellExperiment
+#'
+#' @author Natalie Fox
+#' @importFrom alabaster.matrix AmalgamatedArray
+#' @importFrom SingleCellExperiment SingleCellExperiment mainExpName<-
+#' @importFrom SummarizedExperiment SummarizedExperiment rowRanges<- colData<-
+#' @importFrom methods as
+#' @importFrom BiocParallel bptry bplapply bpparam
+#' @export
+getSCEFromH5List <- function(h5.res.list, grs) {
+  # Combined the per sample results into one matrix
+  if (length(h5.res.list) == 1) {
+    mat <- h5.res.list[[1]]
+  } else {
+    mat <- AmalgamatedArray(h5.res.list, along = 2)
+  }
+  
+  # Map the cells back to samples and update colnames to include sample names
+  cell.to.sample <- unlist(lapply(names(h5.res.list), function(x) {
+    rep(x, ncol(h5.res.list[[x]]))
+  }))
+  
+  # Create a SingleCellExperiment
+  # Ensure colnames are not NULL to avoid paste0 issues
+  cnames <- colnames(mat)
+  if (is.null(cnames)) {
+      cnames <- character(ncol(mat))
+  }
+  new.cnames <- paste0(cell.to.sample, '#', cnames)
+  
+  # Set dimnames on matrix directly
+  dimnames(mat) <- list(NULL, new.cnames)
+
+  mat.list <- list(counts = mat)
+  
+  se <- SummarizedExperiment(mat.list, rowRanges = grs)
+  colData(se)$Sample <- as.character(cell.to.sample)
+  sce <- as(se, 'SingleCellExperiment')
+  
+  return(sce)
+}
+
+createSCEFromFragments <- function(fragment.files,
+                                   output.dir,
+                                   matrix.name,
+                                   worker.fun,
+                                   BPPARAM = bpparam(),
+                                   ...) {
+  # check if the hdf5 files already exist
+  output.file.names <- paste0(output.dir,
+                              '/',
+                              matrix.name,
+                              '_',
+                              names(fragment.files),
+                              '.h5')
+  if (any(table(output.file.names) > 1)) {
+    # if two file names are the same then add a random component to the file name.
+    output.file.names <- tempfile(
+      pattern = paste0(matrix.name, '_', names(fragment.files), '_'),
+      tmpdir = output.dir,
+      fileext = '.h5'
+    )
+  }
+  names(output.file.names) <- names(fragment.files)
+  if (any(file.exists(output.file.names))) {
+    stop(
+      paste0(
+        output.file.names[which(file.exists(output.file.names))[1]],
+        ' already exists. We do not want to overwrite the file in case it is being used. Either remove the file if you think it is safe to do so or specify a different output.dir.'
+      )
+    )
+  }
+  
+  # Parallelizing per sample
+  res.list <- bptry(
+    bplapply(
+      seq_along(fragment.files),
+      worker.fun,
+      fragment.files = fragment.files,
+      output.file.names = output.file.names,
+      BPPARAM = BPPARAM,
+      ...
+    )
+  )
+  
+  # Extract counts (H5SparseMatrix) from results
+  # Use lapply to preserve list structure and names
+  tile.res.list <- lapply(res.list, function(x) {
+    x$counts
+  })
+  names(tile.res.list) <- names(fragment.files)
+  
+  # Use the first sample's ranges as the usage
+  tile.grs <- res.list[[1]]$tiles
+  
+  # check that the tiles are the same for all samples
+  for (i in setdiff(seq_along(res.list), 1)) {
+    if (length(tile.grs) != length(res.list[[i]]$tiles) ||
+        !all(tile.grs == res.list[[i]]$tiles)) {
+      stop('Matrix GRanges do not match')
+    }
+  }
+  
+  sce <- getSCEFromH5List(tile.res.list, tile.grs)
+  mainExpName(sce) <- matrix.name
+  
+  return(sce)
+}
+
+.saveTileMatrixCall <- function(sample.name,
+                                fragment.files,
+                                output.file.names,
+                                tile.size,
+                                seq.lengths,
+                                barcodes.list = NULL) {
+  
+  barcodes <- NULL
+  if (!is.null(barcodes.list)) {
+      barcodes <- barcodes.list[[sample.name]]
+  }
+  if (!is.null(barcodes)) {
+      barcodes <- as.character(barcodes)
+  }
+
+  tile.res <- saveTileMatrix(
+    as.character(fragment.files[sample.name]),
+    output.file = as.character(output.file.names[sample.name]),
+    output.name = 'tile_matrix',
+    tile.size = tile.size,
+    seq.lengths = seq.lengths,
+    barcodes = barcodes
+  )
+  return(tile.res)
+}
+
+.saveRegionMatrixCall <- function(sample.name,
+                                  fragment.files,
+                                  output.file.names,
+                                  regions,
+                                  barcodes.list = NULL) {
+  
+  barcodes <- NULL
+  if (!is.null(barcodes.list)) {
+      barcodes <- barcodes.list[[sample.name]]
+  }
+  if (!is.null(barcodes)) {
+      barcodes <- as.character(barcodes)
+  }
+
+  matrix.res <- saveRegionMatrix(
+    as.character(fragment.files[sample.name]),
+    output.file = as.character(output.file.names[sample.name]),
+    output.name = 'gene_matrix',
+    regions = regions,
+    barcodes = barcodes
+  )
+  return(list(counts = matrix.res, tiles = regions))
+}
+
+.processFragmentHeader <- function(file) {
+  handle <- gzfile(file, open = "rb")
+  on.exit(close(handle))
+  all.headers <- character(0)
+  
+  chunk <- 100
+  repeat {
+    lines <- readLines(handle, n = chunk)
+    header <- startsWith(lines, "#")
+    all.headers <- c(all.headers, sub("^# ", "", lines[header]))
+    if (length(lines) < chunk || !all(header)) {
+      break
+    }
+  }
+  
+  field <- sub("=.*", "", all.headers)
+  value <- sub("[^=]+=", "", all.headers)
+  split(value, field)
+}

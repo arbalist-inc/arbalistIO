@@ -127,22 +127,4 @@ saveTileMatrix <- function(fragment.file,
   list(tiles = tiles, counts = counts)
 }
 
-.processFragmentHeader <- function(file) {
-  handle <- gzfile(file, open = "rb")
-  on.exit(close(handle))
-  all.headers <- character(0)
-  
-  chunk <- 100
-  repeat {
-    lines <- readLines(handle, n = chunk)
-    header <- startsWith(lines, "#")
-    all.headers <- c(all.headers, sub("^# ", "", lines[header]))
-    if (length(lines) < chunk || !all(header)) {
-      break
-    }
-  }
-  
-  field <- sub("=.*", "", all.headers)
-  value <- sub("[^=]+=", "", all.headers)
-  split(value, field)
-}
+
