@@ -87,8 +87,8 @@ createATACSCE <- function(fragment.files,
 #' mockFragmentFile(temp2, c(chrA=1000, chrB=200000, chrC=200),
 #'                  num.fragments=100, cell.names=LETTERS)
 #' fragment_files <- c(sample1=temp1, sample2=temp2)
-#' region_sce <- createGeneScoreSCE(fragment.files = fragment_files, 
-#'                           genes.grs = GRanges(c("chrA:500-1000", "chrB:1000-2000")))
+#' region_sce <- createRegionSCE(fragment.files = fragment_files, 
+#'                               region = GRanges(c("chrA:500-1000", "chrB:1000-2000")))
 #' 
 #' @author Natalie Fox
 #' @importFrom BiocParallel bpparam
