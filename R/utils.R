@@ -1,173 +1,3 @@
-#' Create a SingleCellExperiment from a list of delayed matrices
-#'
-#' Create a SingleCellExperiment from a list of delayed matrices using
-#' AmalgamatedArray.
-#'
-#' @param h5.res.list A list containing delayed matrices with HDF5 backends that
-#'   will be combined using AmalgamatedArray into a SingleCellExperiment. List
-#'   item names should be the sample name for the delayed matrix.
-#' @param grs GRange object to be used for the rowRanges of the resulting
-#'   SingleCellExperiment
-#'
-#' @return A SingleCellExperiment
-#'
-#' @author Natalie Fox
-#' @importFrom alabaster.matrix AmalgamatedArray
-#' @importFrom SingleCellExperiment SingleCellExperiment mainExpName<-
-#' @importFrom SummarizedExperiment SummarizedExperiment rowRanges<- colData<-
-#' @importFrom methods as
-#' @importFrom BiocParallel bptry bplapply bpparam
-#' @export
-getSCEFromH5List <- function(h5.res.list, grs) {
-  # Combined the per sample results into one matrix
-  if (length(h5.res.list) == 1) {
-    mat <- h5.res.list[[1]]
-  } else {
-    mat <- AmalgamatedArray(h5.res.list, along = 2)
-  }
-  
-  # Map the cells back to samples and update colnames to include sample names
-  cell.to.sample <- unlist(lapply(names(h5.res.list), function(x) {
-    rep(x, ncol(h5.res.list[[x]]))
-  }))
-  
-  # Create a SingleCellExperiment
-  # Ensure colnames are not NULL to avoid paste0 issues
-  cnames <- colnames(mat)
-  if (is.null(cnames)) {
-      cnames <- character(ncol(mat))
-  }
-  new.cnames <- paste0(cell.to.sample, '#', cnames)
-  
-  # Set dimnames on matrix directly
-  dimnames(mat) <- list(NULL, new.cnames)
-
-  mat.list <- list(counts = mat)
-  
-  se <- SummarizedExperiment(mat.list, rowRanges = grs)
-  colData(se)$Sample <- as.character(cell.to.sample)
-  sce <- as(se, 'SingleCellExperiment')
-  
-  return(sce)
-}
-
-createSCEFromFragments <- function(fragment.files,
-                                   output.dir,
-                                   matrix.name,
-                                   worker.fun,
-                                   BPPARAM = bpparam(),
-                                   ...) {
-  # check if the hdf5 files already exist
-  output.file.names <- paste0(output.dir,
-                              '/',
-                              matrix.name,
-                              '_',
-                              names(fragment.files),
-                              '.h5')
-  if (any(table(output.file.names) > 1)) {
-    # if two file names are the same then add a random component to the file name.
-    output.file.names <- tempfile(
-      pattern = paste0(matrix.name, '_', names(fragment.files), '_'),
-      tmpdir = output.dir,
-      fileext = '.h5'
-    )
-  }
-  names(output.file.names) <- names(fragment.files)
-  if (any(file.exists(output.file.names))) {
-    stop(
-      paste0(
-        output.file.names[which(file.exists(output.file.names))[1]],
-        ' already exists. We do not want to overwrite the file in case it is being used. Either remove the file if you think it is safe to do so or specify a different output.dir.'
-      )
-    )
-  }
-  
-  # Parallelizing per sample
-  res.list <- bptry(
-    bplapply(
-      seq_along(fragment.files),
-      worker.fun,
-      fragment.files = fragment.files,
-      output.file.names = output.file.names,
-      BPPARAM = BPPARAM,
-      ...
-    )
-  )
-  
-  # Extract counts (H5SparseMatrix) from results
-  # Use lapply to preserve list structure and names
-  tile.res.list <- lapply(res.list, function(x) {
-    x$counts
-  })
-  names(tile.res.list) <- names(fragment.files)
-  
-  # Use the first sample's ranges as the usage
-  tile.grs <- res.list[[1]]$tiles
-  
-  # check that the tiles are the same for all samples
-  for (i in setdiff(seq_along(res.list), 1)) {
-    if (length(tile.grs) != length(res.list[[i]]$tiles) ||
-        !all(tile.grs == res.list[[i]]$tiles)) {
-      stop('Matrix GRanges do not match')
-    }
-  }
-  
-  sce <- getSCEFromH5List(tile.res.list, tile.grs)
-  mainExpName(sce) <- matrix.name
-  
-  return(sce)
-}
-
-.saveTileMatrixCall <- function(sample.name,
-                                fragment.files,
-                                output.file.names,
-                                tile.size,
-                                seq.lengths,
-                                barcodes.list = NULL) {
-  
-  barcodes <- NULL
-  if (!is.null(barcodes.list)) {
-      barcodes <- barcodes.list[[sample.name]]
-  }
-  if (!is.null(barcodes)) {
-      barcodes <- as.character(barcodes)
-  }
-
-  tile.res <- saveTileMatrix(
-    as.character(fragment.files[sample.name]),
-    output.file = as.character(output.file.names[sample.name]),
-    output.name = 'tile_matrix',
-    tile.size = tile.size,
-    seq.lengths = seq.lengths,
-    barcodes = barcodes
-  )
-  return(tile.res)
-}
-
-.saveRegionMatrixCall <- function(sample.name,
-                                  fragment.files,
-                                  output.file.names,
-                                  regions,
-                                  barcodes.list = NULL) {
-  
-  barcodes <- NULL
-  if (!is.null(barcodes.list)) {
-      barcodes <- barcodes.list[[sample.name]]
-  }
-  if (!is.null(barcodes)) {
-      barcodes <- as.character(barcodes)
-  }
-
-  matrix.res <- saveRegionMatrix(
-    as.character(fragment.files[sample.name]),
-    output.file = as.character(output.file.names[sample.name]),
-    output.name = 'gene_matrix',
-    regions = regions,
-    barcodes = barcodes
-  )
-  return(list(counts = matrix.res, tiles = regions))
-}
-
 .processFragmentHeader <- function(file) {
   handle <- gzfile(file, open = "rb")
   on.exit(close(handle))
@@ -186,4 +16,79 @@ createSCEFromFragments <- function(fragment.files,
   field <- sub("=.*", "", all.headers)
   value <- sub("[^=]+=", "", all.headers)
   split(value, field)
+}
+
+#' Retrieves genome reference file name
+#'
+#' Helper function to extract genome reference file name from fragment file header.
+#'
+#' @param fragment.file String specifying fragment file name
+#' @return Named string vector
+#' @author Natalie Fox
+#' @examples
+#' # Mock a fragment file
+#' f <- tempfile(fileext=".tsv.gz")
+#' mockFragmentFile(f, c(chr1=1000), 10, LETTERS[1:5],
+#'                  comments=c("reference_path=/path/to/ref"))
+#'
+#' extractGenomeRefFilenameFromFragmentFile(f)
+#'
+#' @export
+extractGenomeRefFilenameFromFragmentFile <- function(fragment.file) {
+  info <- .processFragmentHeader(fragment.file)
+  
+  if (!"reference_path" %in% names(info))
+    return(NULL)
+  
+  fai <- file.path(info$reference_path, "fasta", "genome.fa.fai")
+  return(fai)
+}
+
+
+#' Filter duplicate features
+#'
+#' Keeps one feature from each set of duplicated features based on specified
+#' criteria, such as the feature with the highest values. Other duplicate
+#' features are removed.
+#'
+#' @param se \linkS4class{SummarizedExperiment}
+#' @param mcol.name String specifying the colname for the experiment rowData
+#' @param summary.stat Function to summarize each feature (row) of the
+#'   experiment
+#' @param selection.metric Function to select the row to keep when there are
+#'   duplicate rows with the same mcol.name
+#'
+#' @importFrom SummarizedExperiment mcols assay
+#' @return A \linkS4class{SummarizedExperiment} with duplicate features resolved.
+#' @examples
+#' library(SummarizedExperiment)
+#'
+#' # Create a mock SummarizedExperiment with duplicates
+#' counts <- matrix(1:10, ncol=2)
+#' rdata <- DataFrame(name = c("GeneA", "GeneA", "GeneB", "GeneC", "GeneC"))
+#' se <- SummarizedExperiment(assays=list(counts=counts), rowData=rdata)
+#'
+#' # Filter duplicates, keeping the row with the max sum
+#' se_filtered <- filterDuplicateFeatures(se, mcol.name="name", selection.metric=max)
+#'
+#' @export
+filterDuplicateFeatures <- function(se,
+                                    mcol.name = 'name',
+                                    summary.stat = sum,
+                                    selection.metric = max) {
+  duplicate.values <- names(which(table(mcols(se)[, mcol.name]) > 1))
+  if (length(duplicate.values) == 0) {
+    return(se)
+  }
+  non.duplicate.rows <- which(!mcols(se)[, mcol.name] %in% duplicate.values)
+  duplicate.rows <- which(mcols(se)[, mcol.name] %in% duplicate.values)
+  selected.duplicate.rows <- sapply(duplicate.values, function(i) {
+    duplicate.rows <- which(mcols(se)[, mcol.name] %in% i)
+    row.summary.stats <- apply(assay(se)[duplicate.rows, ], 1, summary.stat)
+    return(duplicate.rows[which(row.summary.stats == selection.metric(row.summary.stats))[1]])
+  })
+  
+  se <- se[sort(c(non.duplicate.rows, selected.duplicate.rows)), ]
+  
+  return(se)
 }

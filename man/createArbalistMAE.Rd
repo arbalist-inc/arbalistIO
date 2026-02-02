@@ -43,9 +43,6 @@ output per_barcode_metrics.csv or singlecell.csv}
 put in the MultiAssayExperiment colData. ex. 10x Cell Ranger result output
 summary.csv}
 
-\item{output.dir}{String containing the directory where files should be
-output while creating the \linkS4class{MultiAssayExperiment}.}
-
 \item{multiome}{Logical whether to use createRNASCE on the
 filtered.feature.matrix.files to extract the RNA features and create a
 SingleCellExperiment. If NULL, then will become TRUE if
@@ -61,16 +58,6 @@ fragments will be retained.}
 fragments required per cell to pass filtering for use in downstream
 analyses. Cells containing less than or equal to max.frags total fragments
 will be retained.}
-
-\item{tile.size}{Integer scalar specifying the size of the tiles in base
-pairs.}
-
-\item{seq.lengths}{Named integer vector containing the lengths of the
-reference sequences used for alignment. Vector names should correspond to
-the names of the sequences, in the same order of occurrence as in the
-fragment file. If \code{NULL}, this is obtained from the reference genome
-used by Cellranger (itself located by scanning the header of the fragment
-file).}
 
 \item{gene.grs}{Genomic Ranges specifying gene coordinates for creating the
 gene score matrix. If NULL, then the geneset will be selected based on the
@@ -89,9 +76,6 @@ be the main experiment when use.alt.exp is TRUE.}
 \item{filter.rna.features.without.intervals}{Logical whether to remove
 GeneExpression Matrix features from the h5.files that do not have interval
 specified. Often these are mitochondria genes.}
-
-\item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
-creation should be parallelized.}
 }
 \value{
 A \linkS4class{MultiAssayExperiment}
