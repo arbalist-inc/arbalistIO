@@ -52,10 +52,10 @@ mockFragmentFile <- function(output.file,
   o <- order(factor(seq, names(seq.lengths)), starts)
   df <- data.frame(
     seq,
-    starts,
-    ends,
+    as.integer(starts),
+    as.integer(ends),
     name = sample(cell.names, number, replace = TRUE),
-    count = floor(runif(number, read.range[1], read.range[2]))
+    count = as.integer(floor(runif(number, read.range[1], read.range[2])))
   )
   df <- df[o, ]
   
