@@ -148,7 +148,7 @@ mockCellRangerH5 <- function(
   h5write(dim(sparse_counts), filepath, "matrix/shape")
   
   # Write barcodes
-  barcodes <- paste0(cell.names, "-1")
+  barcodes <- cell.names
   h5write(barcodes, filepath, "matrix/barcodes")
   
   # Write features
