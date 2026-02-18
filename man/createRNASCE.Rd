@@ -33,6 +33,13 @@ A \linkS4class{SingleCellExperiment}
 Import RNA results from multiome Cell Ranger results into a
 SingleCellExperiment.
 }
+\examples{
+temp <- tempfile(fileext = ".h5")
+mockCellRangerH5(temp, cell.names = LETTERS)
+rna_sce <- createRNASCE(temp, sample.names="sample1")
+file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
+
+}
 \author{
 Natalie Fox
 }

@@ -15,6 +15,11 @@
 #'   mitochondria genes.
 #'
 #' @return A \linkS4class{SingleCellExperiment}
+#' @examples
+#' temp <- tempfile(fileext = ".h5")
+#' mockCellRangerH5(temp, cell.names = LETTERS)
+#' rna_sce <- createRNASCE(temp, sample.names="sample1")
+#' file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
 #'
 #' @author Natalie Fox
 #' @importFrom BiocGenerics which
@@ -23,7 +28,7 @@
 #' @importFrom rhdf5 h5read
 #' @importFrom S4Vectors SimpleList combineCols
 #' @importFrom SingleCellExperiment mainExpName<-
-#' @importFrom SummarizedExperiment SummarizedExperiment cbind rowData
+#' @importFrom SummarizedExperiment SummarizedExperiment cbind rowData colData
 #'   rowRanges<- rowData<-
 #' @importFrom utils object.size read.csv
 #' @export
