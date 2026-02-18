@@ -32,7 +32,7 @@ library(Matrix)
 
 ## 1. Preparing Mock Data
 
-For this vignette, we will mock data that simulates the output of 10x Genomics Cell Ranger. This includes a fragment file (ATAC-seq) and a filtered feature matrix (Gene Expression).
+For this vignette, we will mock data that simulates the output of 10x Genomics Cell Ranger. This includes a fragment file (ATAC-seq) and a filtered feature matrix (RNA-seq).
 
 ### Generate a Fragment File
 
@@ -67,33 +67,62 @@ mockCellRangerH5(h5_file,
 
 ```
 
-## 2. Creating the MultiAssayExperiment
+## 2. Creating SingleCellExperiment objects
 
-Now we can use `createArbalistMAE` to import everything into a single object. We will also define a set of genomic regions (e.g., promoters) to quantify accessibility alongside the standard tile matrix.
+We create a SingleCellExperiment object for the tile matrix of the ATAC-seq counts
 
-```{r create_mae}
+```{r create_tile}
+tile_sce <- createTileSCE(fragment.files=fragment_file, 
+                          sample.names="MockSample",
+                          tile.size=500, 
+                          seq.lengths=seq_lengths)
+                           
+print(tile_sce)
+```
+We then create a SingleCellExperiment object for the region matrix of the ATAC-seq counts
+
+```{r create_region}
 promoters <- GRanges(
   seqnames = "chr1",
   ranges = IRanges(start = seq(100, 1000, by = 200), width = 100)
 )
 
-mae <- createArbalistMAE(
-  sample.names = "MockSample",
-  fragment.files = fragment_file,
-  filtered.feature.matrix.files = h5_file,
-  output.dir = tmp_dir,
-  gene.grs = promoters,
-  tile.size = 500,
-  seq.lengths = seq_lengths
-)
+region_sce <- createRegionSCE(fragment.files=fragment_file, 
+                              sample.names="MockSample",
+                              regions=promoters)
+                           
+print(region_sce)
+```
+
+We next create a SingleCellExperiment object for the RNA-seq counts
+
+```{r create_rna}
+rna_sce <- createRNASCE(h5_file, sample.names="MockSample")
+print(rna_sce)
+```
+
+
+## 3. Creating the MultiAssayExperiment
+
+Now we can use `createArbalistMAE` to import everything into a single object. We first add the tile SCE and RNA SCE into MAE.
+
+```{r create_mae}
+
+mae <- createArbalistMAE(tile_sce, rna_sce)
+
 
 print(mae)
 ```
+We can append additional experiments to the existing MAE.
 
+```{r}
+
+mae <- c(mae, GeneAccessibilityMatrix = region_sce)
+```
 The resulting `MultiAssayExperiment` contains three experiments:
 
 1.  **TileMatrix500**: 500bp tile counts (ATAC).
-2.  **GeneAccessibilityMatrix**: Counts over the provided `gene.grs` regions (ATAC).
+2.  **GeneAccessibilityMatrix**: Counts over the provided regions (ATAC).
 3.  **GeneExpressionMatrix**: RNA counts imported from the HDF5 file.
 
 ### Exploring the Object
@@ -108,7 +137,7 @@ print(rna)
 head(colData(mae))
 ```
 
-## 3. Low-Level Matrix Generation
+## 4. Low-Level Matrix Generation
 
 If you do not need the full `MultiAssayExperiment` structure, you can use the underlying C++ wrappers to generate specific matrices.
 
@@ -117,7 +146,7 @@ If you do not need the full `MultiAssayExperiment` structure, you can use the un
 Use `saveTileMatrix` to bin fragments into genome-wide tiles.
 
 ```{r save_tiles}
-tile_h5 <- file.path(tmp_dir, "my_tiles.h5")
+tile_h5 <- file.path(tmp_dir, "mytiles.h5")
 
 tile_res <- saveTileMatrix(
   fragment.file = fragment_file,

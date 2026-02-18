@@ -6,9 +6,11 @@
 \usage{
 createRegionSCE(
   fragment.files,
-  regions,
+  sample.names,
   output.dir = tempdir(),
+  regions,
   barcodes.list = NULL,
+  matrix.name = "GeneAccessibilityMatrix",
   BPPARAM = bpparam()
 )
 }
@@ -16,14 +18,19 @@ createRegionSCE(
 \item{fragment.files}{Vector of strings specifying fragment files. Vector
 names need to be sample names.}
 
-\item{regions}{Genomic Ranges specifying gene coordinates for creating the
-gene score matrix.}
+\item{sample.names}{A character vector specifying sample names. These will be 
+added in front of the barcodes}
 
 \item{output.dir}{String containing the directory where files should be
 output.}
 
+\item{regions}{Genomic Ranges specifying gene coordinates for creating the
+gene score matrix.}
+
 \item{barcodes.list}{A List with samples as names and the values a vector of
 barcodes for that sample.}
+
+\item{matrix.name}{Character string indicating the name of the matrix}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
 creation should be parallelized.}
@@ -42,9 +49,10 @@ temp2 <- tempfile(fileext=".fragments.gz")
 mockFragmentFile(temp2, c(chrA=1000, chrB=200000, chrC=200),
                  num.fragments=100, cell.names=LETTERS)
 fragment_files <- c(sample1=temp1, sample2=temp2)
-region_sce <- createRegionSCE(fragment.files = fragment_files, 
-                              region = GRanges(c("chrA:500-1000", "chrB:1000-2000")))
-
+region_sce <- createRegionSCE(fragment.files=c(temp1,temp2),
+                              sample.names=c("sample1", "sample2"),                                
+                              region=GenomicRanges::GRanges(c("chrA:500-1000", "chrB:1000-2000")))
+file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
 }
 \author{
 Natalie Fox
