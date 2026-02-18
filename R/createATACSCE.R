@@ -4,6 +4,8 @@
 #'
 #' @param fragment.files Vector of strings specifying fragment files. Vector
 #'   names need to be sample names.
+#' @param sample.names A character vector specifying sample names. These will be 
+#' added in front of the barcodes  
 #' @param output.dir String containing the directory where files should be
 #'   output.
 #' @param tile.size Integer scalar specifying the size of the tiles in base
@@ -12,6 +14,7 @@
 #'   reference sequences used for alignment.
 #' @param barcodes.list A List with samples as names and the values a vector of
 #'   barcodes for that sample.
+#' @param matrix.name Character string indicating the name of the matrix
 #' @param BPPARAM A \linkS4class{BiocParallelParam} object indicating how matrix
 #'   creation should be parallelized.
 #'
@@ -24,22 +27,26 @@
 #' temp2 <- tempfile(fileext=".fragments.gz")
 #' mockFragmentFile(temp2, c(chrA=1000, chrB=200000, chrC=200),
 #'                  num.fragments=100, cell.names=LETTERS)
-#' fragment_files <- c(sample1=temp1, sample2=temp2)
-#' tile_sce <- createATACSCE(fragment.files = fragment_files, tile.size=500, 
-#'                           seq.lengths = c(chrA=1001, chrB=200001, chrC=201))
-#' 
+#' tile_sce <- createTileSCE(fragment.files=c(temp1,temp2), 
+#'                           sample.names=c("sample1", "sample2"),
+#'                           tile.size=500, 
+#'                           seq.lengths = c(chrA=1000, chrB=200000, chrC=200))
+#' file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
 #' @author Natalie Fox
 #' @importFrom BiocParallel bpparam
+#' @importFrom stats na.omit
 #' @export
-createATACSCE <- function(fragment.files,
+createTileSCE <- function(fragment.files,
+                          sample.names, 
                           output.dir = tempdir(),
                           tile.size = 500,
                           seq.lengths = NULL,
                           barcodes.list = NULL,
+                          matrix.name = "TileMatrix",
                           BPPARAM = bpparam()) {
-  if (is.null(names(fragment.files))) {
-    stop('Please add sample names as the names on fragment.files')
-  }
+
+  names(fragment.files) <- sample.names
+  fragment.files <- na.omit(fragment.files)
   
   # check that fragment headers contained required information
   if (is.null(seq.lengths)) {
@@ -54,7 +61,7 @@ createATACSCE <- function(fragment.files,
   createSCEFromFragments(
     fragment.files = fragment.files,
     output.dir = output.dir,
-    matrix.name = paste0('TileMatrix', tile.size),
+    matrix.name = paste0(matrix.name, tile.size),
     worker.fun = .saveTileMatrixCall,
     BPPARAM = BPPARAM,
     tile.size = tile.size,
@@ -67,17 +74,11 @@ createATACSCE <- function(fragment.files,
 #'
 #' Create a SingleCellExperiment from fragment files, storing the gene score matrix.
 #'
-#' @param fragment.files Vector of strings specifying fragment files. Vector
-#'   names need to be sample names.
+#' @inheritParams createTileSCE 
 #' @param regions Genomic Ranges specifying gene coordinates for creating the
 #'   gene score matrix.
-#' @param output.dir String containing the directory where files should be
-#'   output.
-#' @param barcodes.list A List with samples as names and the values a vector of
-#'   barcodes for that sample.
-#' @param BPPARAM A \linkS4class{BiocParallelParam} object indicating how matrix
-#'   creation should be parallelized.
-#'
+#' @importFrom BiocParallel bpparam
+#' @importFrom GenomicRanges GRanges
 #' @return A \linkS4class{SingleCellExperiment} containing the gene score matrix.
 #' @examples
 #' temp1 <- tempfile(fileext=".fragments.gz")
@@ -87,25 +88,30 @@ createATACSCE <- function(fragment.files,
 #' mockFragmentFile(temp2, c(chrA=1000, chrB=200000, chrC=200),
 #'                  num.fragments=100, cell.names=LETTERS)
 #' fragment_files <- c(sample1=temp1, sample2=temp2)
-#' region_sce <- createRegionSCE(fragment.files = fragment_files, 
-#'                               region = GRanges(c("chrA:500-1000", "chrB:1000-2000")))
-#' 
+#' region_sce <- createRegionSCE(fragment.files=c(temp1,temp2),
+#'                               sample.names=c("sample1", "sample2"),                                
+#'                               region=GenomicRanges::GRanges(c("chrA:500-1000", "chrB:1000-2000")))
+#' file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
 #' @author Natalie Fox
-#' @importFrom BiocParallel bpparam
 #' @export
+#' 
+#' 
+
 createRegionSCE <- function(fragment.files,
-                               regions,
-                               output.dir = tempdir(),
-                               barcodes.list = NULL,
-                               BPPARAM = bpparam()) {
-  if (is.null(names(fragment.files))) {
-    stop('Please add sample names as the names on fragment.files')
-  }
+                            sample.names,
+                            output.dir = tempdir(),
+                            regions,
+                            barcodes.list = NULL,
+                            matrix.name = "GeneAccessibilityMatrix",
+                            BPPARAM = bpparam()) {
+  names(fragment.files) <- sample.names
+  
+  fragment.files <- na.omit(fragment.files)
   
   createSCEFromFragments(
     fragment.files = fragment.files,
     output.dir = output.dir,
-    matrix.name = 'GeneAccessibilityMatrix',
+    matrix.name = matrix.name,
     worker.fun = .saveRegionMatrixCall,
     BPPARAM = BPPARAM,
     regions = regions,
