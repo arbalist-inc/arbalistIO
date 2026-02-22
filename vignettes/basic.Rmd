@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r options, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -115,7 +115,7 @@ print(mae)
 ```
 We can append additional experiments to the existing MAE.
 
-```{r}
+```{r add_sce}
 
 mae <- c(mae, GeneAccessibilityMatrix = region_sce)
 ```
@@ -182,3 +182,9 @@ print(region_mat)
 ```
 
 That's it! For analyzing multiome datasets, check out the arbalist package.
+
+## sessionInfo
+
+```{r sessionInfo}
+sessionInfo()
+```
