@@ -13,18 +13,20 @@ createArbalistMAE(
 )
 }
 \arguments{
-\item{atac.sce}{A \linkS4class{SingleCellExperiment} containing ATAC data.}
+\item{atac.sce}{A \link[SingleCellExperiment]{SingleCellExperiment} object
+containing ATAC data}
 
-\item{rna.sce}{A \linkS4class{SingleCellExperiment} containing RNA data.}
+\item{rna.sce}{A \link[SingleCellExperiment]{SingleCellExperiment} object
+containing RNA data}
 
 \item{sample.annotation}{A data.frame containing sample annotation.}
 
-\item{rna.name}{String containing the name of the rna SCE}
+\item{rna.name}{String indicating the name of \code{rna.sce}}
 
-\item{atac.name}{String containing the name of the atac SCE}
+\item{atac.name}{String indicating the name of \code{atac.sce}}
 }
 \value{
-A \linkS4class{MultiAssayExperiment}
+A \link[MultiAssayExperiment]{MultiAssayExperiment}.
 }
 \description{
 Combine ATAC and RNA SingleCellExperiments into a MultiAssayExperiment.
@@ -48,5 +50,5 @@ mae <- createArbalistMAE(tile_sce, rna_sce)
 file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
 }
 \author{
-Natalie Fox
+Natalie Fox, Jayaram Kancherla
 }

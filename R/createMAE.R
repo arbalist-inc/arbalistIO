@@ -2,13 +2,15 @@
 #'
 #' Combine ATAC and RNA SingleCellExperiments into a MultiAssayExperiment.
 #'
-#' @param atac.sce A \linkS4class{SingleCellExperiment} containing ATAC data.
-#' @param rna.sce A \linkS4class{SingleCellExperiment} containing RNA data.
+#' @param atac.sce A \link[SingleCellExperiment]{SingleCellExperiment} object
+#'    containing ATAC data
+#' @param rna.sce A \link[SingleCellExperiment]{SingleCellExperiment} object
+#'     containing RNA data
 #' @param sample.annotation A data.frame containing sample annotation.
-#' @param rna.name String containing the name of the rna SCE
-#' @param atac.name String containing the name of the atac SCE
+#' @param rna.name String indicating the name of \code{rna.sce}
+#' @param atac.name String indicating the name of \code{atac.sce}
 #'
-#' @return A \linkS4class{MultiAssayExperiment}
+#' @return A \link[MultiAssayExperiment]{MultiAssayExperiment}.
 #' @examples
 #' # create rna sce
 #' temp_rna <- tempfile(fileext = ".h5")
@@ -26,16 +28,16 @@
 #' # create combined MAE
 #' mae <- createArbalistMAE(tile_sce, rna_sce)
 #' file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
-#' @author Natalie Fox
+#' @author Natalie Fox, Jayaram Kancherla
 #' @importFrom MultiAssayExperiment MultiAssayExperiment ExperimentList listToMap
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SingleCellExperiment altExp<- mainExpName
 #' @export
 createArbalistMAE <- function(atac.sce,
-                            rna.sce,
-                            sample.annotation = NULL,
-                            rna.name = "GeneExpressionMatrix",
-                            atac.name = "TileMatrix500") {
+                              rna.sce,
+                              sample.annotation = NULL,
+                              rna.name = "GeneExpressionMatrix",
+                              atac.name = "TileMatrix500") {
   exp.list <- list()
   exp.list[[rna.name]] <- rna.sce
   exp.list[[atac.name]] <- atac.sce
@@ -70,7 +72,7 @@ createArbalistMAE <- function(atac.sce,
 #' Import results from scATAC-seq or multiome Cell Ranger results directories
 #' into a MultiAssayExperiment.
 #'
-#' @param cellranger.dirs Vector of strings specifying a Cell Ranger
+#' @param cellranger.dirs Named character vector specifying a Cell Ranger
 #'   scATAC-seq or multiome results directory. Vector names need to be sample
 #'   names.
 #' @param fragment.file Character string indicating the name of the fragment file
@@ -82,9 +84,9 @@ createArbalistMAE <- function(atac.sce,
 #' @inheritParams createTileSCE
 #' @inheritParams createRNASCE
 #'
-#' @return A \linkS4class{MultiAssayExperiment}
+#' @return A \link[MultiAssayExperiment]{MultiAssayExperiment}.
 #'
-#' @author Natalie Fox
+#' @author Natalie Fox, Xiaosai Yao
 #' @export
 #'
 createMAEFromCellranger <- function(cellranger.dirs,
@@ -93,8 +95,8 @@ createMAEFromCellranger <- function(cellranger.dirs,
                                     tile.size = 500,
                                     seq.lengths = NULL,
                                     regions = NULL,
-                                    atac.name = 'TileMatrix500',
-                                    rna.name = 'GeneExpressionMatrix',
+                                    atac.name = "TileMatrix500",
+                                    rna.name = "GeneExpressionMatrix",
                                     fragment.file = "atac_fragments.tsv.gz",
                                     h5.file = "filtered_feature_bc_matrix.h5",
                                     barcode.file = "per_barcode_metrics.csv",
@@ -150,7 +152,7 @@ createMAEFromCellranger <- function(cellranger.dirs,
     rna.name =  rna.name,
     atac.name = atac.name
   )
-
+  
 }
 
 

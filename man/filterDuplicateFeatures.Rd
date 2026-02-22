@@ -7,23 +7,28 @@
 filterDuplicateFeatures(
   se,
   mcol.name = "name",
+  assay.name = 1,
   summary.stat = sum,
   selection.metric = max
 )
 }
 \arguments{
-\item{se}{\linkS4class{SummarizedExperiment}}
+\item{se}{A \link[SummarizedExperiment]{SummarizedExperiment} object containing
+RNA data}
 
-\item{mcol.name}{String specifying the colname for the experiment rowData}
+\item{mcol.name}{String specifying the column name in the rowData 
+corresponding to feature names}
+
+\item{assay.name}{String specifying the name of the assay}
 
 \item{summary.stat}{Function to summarize each feature (row) of the
-experiment}
+experiment. Default is \code{sum}}
 
 \item{selection.metric}{Function to select the row to keep when there are
-duplicate rows with the same mcol.name}
+duplicate rows with the same \code{mcol.name}. Default is \code{max}}
 }
 \value{
-A \linkS4class{SummarizedExperiment} with duplicate features resolved.
+A \link[SummarizedExperiment]{SummarizedExperiment} with duplicate features resolved.
 }
 \description{
 Keeps one feature from each set of duplicated features based on specified
@@ -41,4 +46,7 @@ se <- SummarizedExperiment(assays=list(counts=counts), rowData=rdata)
 # Filter duplicates, keeping the row with the max sum
 se_filtered <- filterDuplicateFeatures(se, mcol.name="name", selection.metric=max)
 
+}
+\author{
+Natalie Fox, Jayaram Kancherla
 }

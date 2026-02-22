@@ -32,11 +32,11 @@ barcodes for that sample.}
 
 \item{matrix.name}{Character string indicating the name of the matrix}
 
-\item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
+\item{BPPARAM}{A \link[BiocParallel]{BiocParallelParam} object indicating how matrix
 creation should be parallelized.}
 }
 \value{
-A \linkS4class{SingleCellExperiment} containing the gene score matrix.
+A \link[SingleCellExperiment]{SingleCellExperiment} containing the gene score matrix.
 }
 \description{
 Create a SingleCellExperiment from fragment files, storing the gene score matrix.
@@ -55,5 +55,5 @@ region_sce <- createRegionSCE(fragment.files=c(temp1,temp2),
 file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
 }
 \author{
-Natalie Fox
+Natalie Fox, Jayaram Kancherla, Xiaosai Yao
 }

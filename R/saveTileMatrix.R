@@ -49,7 +49,7 @@
 #'   format. A list is returned containing:
 #' \itemize{
 #' \item \code{tiles}, a GRanges object containing the tile coordinates.
-#' \item \code{counts} A \linkS4class{H5SparseMatrix} referencing the \code{outputfile}, where the rows correspond to entries of \code{tiles}.
+#' \item \code{counts} A \link[HDF5Array]{H5SparseMatrix} referencing the \code{outputfile}, where the rows correspond to entries of \code{tiles}.
 #' Column names are set to the cell barcodes - if \code{barcodes} is supplied, this is directly used as the column names.
 #' }
 #'

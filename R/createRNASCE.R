@@ -3,18 +3,19 @@
 #' Import RNA results from multiome Cell Ranger results into a
 #' SingleCellExperiment.
 #'
-#' @param h5.files Vector of strings specifying filtered_feature_bc_matrix.h5
-#'   path. ex. could just be filtered_feature_bc_matrix.h5. Vector must be the
-#'   same length as sample.names.
-#' @param sample.names Vector of strings specifying sample names. Vector must be
-#'   the same length as h5.files.
+#' @param h5.files Character vector specifying path to a
+#'   filtered_feature_bc_matrix.h5. Vector must be the same length as
+#'   \code{sample.names}.
+#' @param sample.names Character vector specifying sample names. Vector must be the
+#'   same length as \code{h5.files}.
 #' @param feature.type String specifying the feature type to select from
 #'   filtered_feature_bc_matrix.h5.
-#' @param filter.features.without.intervals Logical whether to remove features
-#'   from the h5.files that do not have interval specified. Often these are
-#'   mitochondria genes.
+#' @param exp.name String specifying the name of the experiment
+#' @param filter.features.without.intervals Logical scalar indicating whether to remove
+#'.   features from the h5.files that do not have interval specified. Often these are
+#'    mitochondria genes.
 #'
-#' @return A \linkS4class{SingleCellExperiment}
+#' @return A \link[SingleCellExperiment]{SingleCellExperiment}
 #' @examples
 #' temp <- tempfile(fileext = ".h5")
 #' mockCellRangerH5(temp, cell.names = LETTERS)
@@ -34,7 +35,8 @@
 #' @export
 createRNASCE <- function(h5.files,
                          sample.names = NULL,
-                         feature.type = 'Gene Expression',
+                         feature.type = "Gene Expression",
+                         exp.name = "GeneExpressionMatrix",
                          filter.features.without.intervals = TRUE) {
   # collect potential RNA files for each
   names(h5.files) <- sample.names
@@ -63,7 +65,7 @@ createRNASCE <- function(h5.files,
     # combine sample name and barcode for cell identifiers/column names
     colnames(sparse.feature.matrix) <- paste0(sample.name, "#", barcodes)
     
-    features <- as.data.frame(features[sapply(features, length) == nrow(sparse.feature.matrix)])
+    features <- as.data.frame(features[lengths(features) == nrow(sparse.feature.matrix)])
     
     # create a per sample SummarizedExperiment
     se <- SummarizedExperiment(assays = SimpleList(counts = sparse.feature.matrix),
@@ -90,9 +92,9 @@ createRNASCE <- function(h5.files,
   colData(se.all.samples)$Sample <- sub('#.*$', '', colnames(se.all.samples))
   
   
-
+  
   if (filter.features.without.intervals) {
-
+    
     no.na.features <- which(rowData(se.all.samples)$interval != 'NA')
     
     if (any(!no.na.features)){
@@ -103,13 +105,13 @@ createRNASCE <- function(h5.files,
     row.data <- rowData(se.all.samples)
     rowRanges(se.all.samples) <- GRanges(rowData(se.all.samples)$interval)
     rowData(se.all.samples) <- row.data
-
-  
+    
+    
   }
   
   
   sce <- as(se.all.samples, 'SingleCellExperiment')
-  mainExpName(sce) <- 'GeneExpressionMatrix'
+  mainExpName(sce) <- exp.name 
   
   return(sce)
 }

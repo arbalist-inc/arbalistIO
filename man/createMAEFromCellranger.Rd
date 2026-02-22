@@ -22,7 +22,7 @@ createMAEFromCellranger(
 )
 }
 \arguments{
-\item{cellranger.dirs}{Vector of strings specifying a Cell Ranger
+\item{cellranger.dirs}{Named character vector specifying a Cell Ranger
 scATAC-seq or multiome results directory. Vector names need to be sample
 names.}
 
@@ -41,9 +41,9 @@ reference sequences used for alignment.}
 \item{regions}{Genomic Ranges specifying gene coordinates for creating the
 gene score matrix.}
 
-\item{atac.name}{String containing the name of the atac SCE}
+\item{atac.name}{String indicating the name of \code{atac.sce}}
 
-\item{rna.name}{String containing the name of the rna SCE}
+\item{rna.name}{String indicating the name of \code{rna.sce}}
 
 \item{fragment.file}{Character string indicating the name of the fragment file}
 
@@ -53,20 +53,20 @@ gene score matrix.}
 
 \item{summary.file}{Character string indicating the name of the summary file}
 
-\item{filter.features.without.intervals}{Logical whether to remove features
-from the h5.files that do not have interval specified. Often these are
-mitochondria genes.}
+\item{filter.features.without.intervals}{Logical scalar indicating whether to remove
+.   features from the h5.files that do not have interval specified. Often these are
+   mitochondria genes.}
 
-\item{BPPARAM}{A \linkS4class{BiocParallelParam} object indicating how matrix
+\item{BPPARAM}{A \link[BiocParallel]{BiocParallelParam} object indicating how matrix
 creation should be parallelized.}
 }
 \value{
-A \linkS4class{MultiAssayExperiment}
+A \link[MultiAssayExperiment]{MultiAssayExperiment}.
 }
 \description{
 Import results from scATAC-seq or multiome Cell Ranger results directories
 into a MultiAssayExperiment.
 }
 \author{
-Natalie Fox
+Natalie Fox, Xiaosai Yao
 }

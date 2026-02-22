@@ -15,10 +15,10 @@
 #' @param barcodes.list A List with samples as names and the values a vector of
 #'   barcodes for that sample.
 #' @param matrix.name Character string indicating the name of the matrix
-#' @param BPPARAM A \linkS4class{BiocParallelParam} object indicating how matrix
+#' @param BPPARAM A \link[BiocParallel]{BiocParallelParam} object indicating how matrix
 #'   creation should be parallelized.
 #'
-#' @return A \linkS4class{SingleCellExperiment} containing the tile matrix.
+#' @return A \link[SingleCellExperiment]{SingleCellExperiment} containing the tile matrix.
 #'
 #' @examples
 #' temp1 <- tempfile(fileext=".fragments.gz")
@@ -32,7 +32,7 @@
 #'                           tile.size=500, 
 #'                           seq.lengths = c(chrA=1000, chrB=200000, chrC=200))
 #' file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
-#' @author Natalie Fox
+#' @author Natalie Fox, Jayaram Kancherla, Xiaosai Yao
 #' @importFrom BiocParallel bpparam
 #' @importFrom stats na.omit
 #' @export
@@ -44,16 +44,17 @@ createTileSCE <- function(fragment.files,
                           barcodes.list = NULL,
                           matrix.name = "TileMatrix",
                           BPPARAM = bpparam()) {
-
+  
   names(fragment.files) <- sample.names
   fragment.files <- na.omit(fragment.files)
   
   # check that fragment headers contained required information
   if (is.null(seq.lengths)) {
     info <- .processFragmentHeader(fragment.files[1])
-    if (!'reference_path' %in% names(info)) {
+    if (!"reference_path" %in% names(info)) {
       stop(
-        'the fragment file header does not have reference_path information so please specify the seq.lengths argument'
+        "the fragment file header does not have reference_path information so 
+        please specify the seq.lengths argument"
       )
     }
   }
@@ -79,7 +80,7 @@ createTileSCE <- function(fragment.files,
 #'   gene score matrix.
 #' @importFrom BiocParallel bpparam
 #' @importFrom GenomicRanges GRanges
-#' @return A \linkS4class{SingleCellExperiment} containing the gene score matrix.
+#' @return A \link[SingleCellExperiment]{SingleCellExperiment} containing the gene score matrix.
 #' @examples
 #' temp1 <- tempfile(fileext=".fragments.gz")
 #' mockFragmentFile(temp1, c(chrA=1000, chrB=200000, chrC=200),
@@ -92,7 +93,7 @@ createTileSCE <- function(fragment.files,
 #'                               sample.names=c("sample1", "sample2"),                                
 #'                               region=GenomicRanges::GRanges(c("chrA:500-1000", "chrB:1000-2000")))
 #' file.remove(list.files(tempdir(), pattern=".h5", full.names = TRUE))
-#' @author Natalie Fox
+#' @author Natalie Fox, Jayaram Kancherla, Xiaosai Yao
 #' @export
 #' 
 #' 
@@ -128,27 +129,22 @@ createSCEFromFragments <- function(fragment.files,
                                    BPPARAM = bpparam(),
                                    ...) {
   # check if the hdf5 files already exist
-  output.file.names <- paste0(output.dir,
-                              '/',
-                              matrix.name,
-                              '_',
-                              names(fragment.files),
-                              '.h5')
+  output.file.names <- file.path(output.dir, 
+                                 paste0(matrix.name,'_', names(fragment.files),'.h5'))
+  
   if (any(table(output.file.names) > 1)) {
     # if two file names are the same then add a random component to the file name.
     output.file.names <- tempfile(
-      pattern = paste0(matrix.name, '_', names(fragment.files), '_'),
+      pattern = paste0(matrix.name, "_", names(fragment.files), "_"),
       tmpdir = output.dir,
-      fileext = '.h5'
+      fileext = ".h5"
     )
   }
   names(output.file.names) <- names(fragment.files)
   if (any(file.exists(output.file.names))) {
-    stop(
-      paste0(
-        output.file.names[which(file.exists(output.file.names))[1]],
-        ' already exists. We do not want to overwrite the file in case it is being used. Either remove the file if you think it is safe to do so or specify a different output.dir.'
-      )
+    stop(output.file.names[which(file.exists(output.file.names))[1]],
+         ' already exists. We do not want to overwrite the file in case it is being used. 
+        Either remove the file if you think it is safe to do so or specify a different output.dir.'
     )
   }
   
@@ -178,7 +174,7 @@ createSCEFromFragments <- function(fragment.files,
   for (i in setdiff(seq_along(res.list), 1)) {
     if (length(tile.grs) != length(res.list[[i]]$tiles) ||
         !all(tile.grs == res.list[[i]]$tiles)) {
-      stop('Matrix GRanges do not match')
+      stop("Matrix GRanges do not match")
     }
   }
   
@@ -194,11 +190,12 @@ createSCEFromFragments <- function(fragment.files,
 #' Create a SingleCellExperiment from a list of delayed matrices using
 #' AmalgamatedArray.
 #'
-#' @param h5.res.list A list containing delayed matrices with HDF5 backends that
-#'   will be combined using AmalgamatedArray into a SingleCellExperiment. List
+#' @param h5.res.list List containing delayed matrices with HDF5 backends that
+#'   will be combined using \link[alabaster.matrix]{AmalgamatedArray} into a 
+#'   \link[SingleCellExperiment]{SingleCellExperiment} object. List
 #'   item names should be the sample name for the delayed matrix.
-#' @param grs GRange object to be used for the rowRanges of the resulting
-#'   SingleCellExperiment
+#' @param grs \link[GenomicRanges]{GRanges} object to be used for the rowRanges 
+#'    of the resulting \link[SingleCellExperiment]{SingleCellExperiment} object
 #'
 #' @return A SingleCellExperiment
 #'
@@ -208,7 +205,7 @@ createSCEFromFragments <- function(fragment.files,
 #' @importFrom SummarizedExperiment SummarizedExperiment rowRanges<- colData<-
 #' @importFrom methods as
 #' @importFrom BiocParallel bptry bplapply bpparam
-#' @export
+
 getSCEFromH5List <- function(h5.res.list, grs) {
   # Combined the per sample results into one matrix
   if (length(h5.res.list) == 1) {
@@ -228,7 +225,7 @@ getSCEFromH5List <- function(h5.res.list, grs) {
   if (is.null(cnames)) {
     cnames <- character(ncol(mat))
   }
-  new.cnames <- paste0(cell.to.sample, '#', cnames)
+  new.cnames <- paste0(cell.to.sample, "#", cnames)
   
   # Set dimnames on matrix directly
   dimnames(mat) <- list(NULL, new.cnames)
@@ -237,7 +234,7 @@ getSCEFromH5List <- function(h5.res.list, grs) {
   
   se <- SummarizedExperiment(mat.list, rowRanges = grs)
   colData(se)$Sample <- as.character(cell.to.sample)
-  sce <- as(se, 'SingleCellExperiment')
+  sce <- as(se, "SingleCellExperiment")
   
   return(sce)
 }
@@ -260,7 +257,7 @@ getSCEFromH5List <- function(h5.res.list, grs) {
   tile.res <- saveTileMatrix(
     as.character(fragment.files[sample.name]),
     output.file = as.character(output.file.names[sample.name]),
-    output.name = 'tile_matrix',
+    output.name = "tile_matrix",
     tile.size = tile.size,
     seq.lengths = seq.lengths,
     barcodes = barcodes
@@ -285,7 +282,7 @@ getSCEFromH5List <- function(h5.res.list, grs) {
   matrix.res <- saveRegionMatrix(
     as.character(fragment.files[sample.name]),
     output.file = as.character(output.file.names[sample.name]),
-    output.name = 'gene_matrix',
+    output.name = "gene_matrix",
     regions = regions,
     barcodes = barcodes
   )

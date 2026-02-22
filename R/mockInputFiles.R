@@ -6,7 +6,7 @@
 #' @param seq.lengths Named integer vector containing the lengths of the
 #'   reference sequences used for alignment. Vector names should correspond to
 #'   the names of the sequences.
-#' @param num.fragments Integer scalar, the average number of fragments per
+#' @param num.fragments Integer scalar specifying the average number of fragments per
 #'   cell.
 #' @param cell.names Character vector containing the cell names. The length of
 #'   this vector is used as the total number of cells.
