@@ -265,3 +265,59 @@ expected_counted <- saveRegionMatrix(temp, output.file=temp.out, output.name="ex
 expect_identical(as.matrix(counted), as.matrix(expected_counted))
 
 })
+
+
+test_that("Test createRegionSCE counts fragments correctly", {
+  
+  # fragments files are 0-based, inclusive starts and exclusive ends
+  # chr1 1 200 cell1 2
+  # chr1 489 1005 cell2 1
+  
+  
+  temp <- tempfile(fileext = ".gz")
+  temp.out <- tempfile(fileext=".h5")
+  frag.mock <- data.frame(chr=c("chr1", "chr1"),
+                          start=c(1, 489),
+                          end=c(200, 1005),
+                          cells=c("cell1","cell2"),
+                          counts=c(2,1))
+  
+  
+  frag.mock
+  
+  handle <- gzfile(temp, "w")
+  write.table(
+    file = handle,
+    frag.mock,
+    row.names = FALSE,
+    col.names = FALSE,
+    sep = "\t",
+    quote = FALSE,
+    eol = "\n"
+  )
+  
+  close(handle)
+  
+  # regions are 1-based granges with inclusive starts and ends
+  # test start regions overlap. 
+  
+  regions <- GRanges(c("chr1:2-50","chr1:490-1000"))
+  atac_sce <- createRegionSCE(temp, 
+                              sample.names="example11", 
+                              regions=regions,
+                              BPPARAM = BiocParallel::SerialParam())
+
+  
+  # ranges
+  #chr1:2-50 
+  #chr1:490-1000
+  
+  # expected counts
+  #   cell1 cell2
+  #1.   1     0
+  #2.   0     1
+  
+  expected_counts <- matrix(as.raw(c(1, 0, 0, 1)), ncol=2)
+  colnames(expected_counts) <- c("example11#cell1","example11#cell2")
+  expect_identical(as.matrix(assay(atac_sce)), expected = expected_counts)
+})
