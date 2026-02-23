@@ -49,7 +49,7 @@
 #'   format. A list is returned containing:
 #' \itemize{
 #' \item \code{tiles}, a GRanges object containing the tile coordinates.
-#' \item \code{counts} A \linkS4class{H5SparseMatrix} referencing the \code{outputfile}, where the rows correspond to entries of \code{tiles}.
+#' \item \code{counts} A \link[HDF5Array]{H5SparseMatrix} referencing the \code{outputfile}, where the rows correspond to entries of \code{tiles}.
 #' Column names are set to the cell barcodes - if \code{barcodes} is supplied, this is directly used as the column names.
 #' }
 #'
@@ -127,22 +127,4 @@ saveTileMatrix <- function(fragment.file,
   list(tiles = tiles, counts = counts)
 }
 
-.processFragmentHeader <- function(file) {
-  handle <- gzfile(file, open = "rb")
-  on.exit(close(handle))
-  all.headers <- character(0)
-  
-  chunk <- 100
-  repeat {
-    lines <- readLines(handle, n = chunk)
-    header <- startsWith(lines, "#")
-    all.headers <- c(all.headers, sub("^# ", "", lines[header]))
-    if (length(lines) < chunk || !all(header)) {
-      break
-    }
-  }
-  
-  field <- sub("=.*", "", all.headers)
-  value <- sub("[^=]+=", "", all.headers)
-  split(value, field)
-}
+

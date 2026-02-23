@@ -23,7 +23,7 @@ exists, one will be created.}
 \item{output.name}{String containing the name of the group inside
 \code{output.file}, in which to save the matrix contents.}
 
-\item{regions}{A \linkS4class{GRanges} or \linkS4class{GRangesList} of the
+\item{regions}{A \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList} of the
 regions in which to count fragments. If \code{regions} is a GRangesList,
 the count for each entry of \code{regions} will include all fragment
 starts/ends falling in any of the genomic intervals in its GRanges.}
@@ -41,7 +41,7 @@ of the number of elements) inside the HDF5 file.}
 }
 \value{
 A sparse matrix is saved to \code{output.file} using the 10X HDF5
-  format. A \linkS4class{H5SparseMatrix} referencing this file is returned
+  format. A \link[HDF5Array]{H5SparseMatrix} referencing this file is returned
   where the rows correspond to entries of \code{regions}. Column names are
   set to the cell barcodes - if \code{barcodes} is supplied, this is directly
   used as the column names.

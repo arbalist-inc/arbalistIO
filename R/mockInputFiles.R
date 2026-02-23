@@ -6,7 +6,7 @@
 #' @param seq.lengths Named integer vector containing the lengths of the
 #'   reference sequences used for alignment. Vector names should correspond to
 #'   the names of the sequences.
-#' @param num.fragments Integer scalar, the average number of fragments per
+#' @param num.fragments Integer scalar specifying the average number of fragments per
 #'   cell.
 #' @param cell.names Character vector containing the cell names. The length of
 #'   this vector is used as the total number of cells.
@@ -52,10 +52,10 @@ mockFragmentFile <- function(output.file,
   o <- order(factor(seq, names(seq.lengths)), starts)
   df <- data.frame(
     seq,
-    starts,
-    ends,
+    as.integer(starts),
+    as.integer(ends),
     name = sample(cell.names, number, replace = TRUE),
-    count = floor(runif(number, read.range[1], read.range[2]))
+    count = as.integer(floor(runif(number, read.range[1], read.range[2])))
   )
   df <- df[o, ]
   
@@ -148,7 +148,7 @@ mockCellRangerH5 <- function(
   h5write(dim(sparse_counts), filepath, "matrix/shape")
   
   # Write barcodes
-  barcodes <- paste0(cell.names, "-1")
+  barcodes <- cell.names
   h5write(barcodes, filepath, "matrix/barcodes")
   
   # Write features

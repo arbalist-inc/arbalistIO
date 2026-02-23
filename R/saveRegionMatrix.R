@@ -9,7 +9,7 @@
 #'   exists, one will be created.
 #' @param output.name String containing the name of the group inside
 #'   \code{output.file}, in which to save the matrix contents.
-#' @param regions A \linkS4class{GRanges} or \linkS4class{GRangesList} of the
+#' @param regions A \link[GenomicRanges]{GRanges} or \link[GenomicRanges]{GRangesList} of the
 #'   regions in which to count fragments. If \code{regions} is a GRangesList,
 #'   the count for each entry of \code{regions} will include all fragment
 #'   starts/ends falling in any of the genomic intervals in its GRanges.
@@ -43,7 +43,7 @@
 #' enrichment of even counts.
 #'
 #' @return A sparse matrix is saved to \code{output.file} using the 10X HDF5
-#'   format. A \linkS4class{H5SparseMatrix} referencing this file is returned
+#'   format. A \link[HDF5Array]{H5SparseMatrix} referencing this file is returned
 #'   where the rows correspond to entries of \code{regions}. Column names are
 #'   set to the cell barcodes - if \code{barcodes} is supplied, this is directly
 #'   used as the column names.
@@ -115,7 +115,7 @@ saveRegionMatrix <- function(fragment.file,
 #' @importFrom S4Vectors queryHits subjectHits splitAsList
 
 .extractNonOverlaps <- function(regions) {
-
+  
   if (is(regions, "GRangesList")) { # 
     tmp <- reduce(regions, ignore.strand = TRUE) # eliminating overlaps within each GRanges. Helpful to merge overlapping exons 
     # so that fragment counts aren't lost to ambiguity  
@@ -142,7 +142,7 @@ saveRegionMatrix <- function(fragment.file,
 .prepareRegions <- function(solo, regions){
   
   overlap <- findOverlaps(solo, regions, select = "first") # output the first index of the regions overlapping with each region in solo
-
+  
   seqnames <- as.character(seqnames(solo))
   by_ids <- split(overlap - 1L, seqnames) # get to 0-based indices # this maps the sanitized regions to regions by the index of regions
   starts <- split(start(solo) - 1L, seqnames) # get to 0-based starts.

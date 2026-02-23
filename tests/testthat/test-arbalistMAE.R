@@ -22,36 +22,52 @@ test_that("createArbalistMAE works", {
 
   gene_grs <- GRanges("chr1", IRanges(10, 100))
 
-  mae <- suppressWarnings(
-    createArbalistMAE(
-      sample.names = sample_name,
-      fragment.files = frag_file,
-      filtered.feature.matrix.files = feat_file,
-      output.dir = tmp_dir,
-      gene.grs = gene_grs,
-      seq.lengths = seq_lengths,
-      tile.size = 200
-    )
-  )
+  region.sce <- createRegionSCE(fragment.files=frag_file,
+                                sample.names=sample_name,
+                                region=gene_grs,
+                                output.dir = tmp_dir)
+
+  rna.sce <- createRNASCE(feat_file, sample.names=sample_name)
+  
+  mae <- createArbalistMAE(region.sce,
+                           rna.sce,
+                           sample.annotation = NULL,
+                           rna.name = "GeneExpressionMatrix",
+                           atac.name = "GeneAccessibilityMatrix")
+  
+
 
   expect_s4_class(mae, "MultiAssayExperiment")
 
   exp_names <- names(experiments(mae))
-  expect_true("TileMatrix200" %in% exp_names)
   expect_true("GeneAccessibilityMatrix" %in% exp_names)
   expect_true("GeneExpressionMatrix" %in% exp_names)
 
-  expect_true("fragment_file" %in% names(colData(mae)))
-  expect_equal(as.vector(colData(mae)[1, "fragment_file"]), frag_file)
 })
 
-test_that("createArbalistMAE validates input lengths", {
-  expect_error(
-    createArbalistMAE(
-      sample.names = c("A", "B"),
-      fragment.files = c("file1"),
-      filtered.feature.matrix.files = c("file1", "file2")
-    ),
-    "fragment.files and sample names need to be the same length"
-  )
+test_that("createMAEFromCellranger works", {
+  tmp_dir <- tempdir()
+  file.remove(list.files(tmp_dir, pattern=".h5", full.names = TRUE))
+  temp_rna <- file.path(tmp_dir,"filtered_feature_bc_matrix.h5")
+  mockCellRangerH5(temp_rna, cell.names = LETTERS)
+  temp_atac <- file.path(tmp_dir,"atac_fragments.tsv.gz")
+  mockFragmentFile(temp_atac,
+                   c(chrA=1000, chrB=200000, chrC=200),
+                   num.fragments=100,
+                   cell.names=LETTERS)
+  seq.lengths <-  c(chrA=1000, chrB=200000, chrC=200)
+  # create combined MAE
+  mae <- createMAEFromCellranger(cellranger.dirs = tmp_dir,
+                                 sample.names = "mock",
+                                 seq.lengths = seq.lengths,
+                                 consistent.barcodes = FALSE)
+  file.remove(list.files(tmp_dir, pattern=".h5", full.names = TRUE))
+  
+  expect_s4_class(mae, "MultiAssayExperiment")
+  
+  exp_names <- names(experiments(mae))
+  expect_true("TileMatrix500" %in% exp_names)
+  expect_true("GeneExpressionMatrix" %in% exp_names)
 })
+
+
