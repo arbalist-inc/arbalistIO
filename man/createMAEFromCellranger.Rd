@@ -2,7 +2,7 @@
 % Please edit documentation in R/createMAE.R
 \name{createMAEFromCellranger}
 \alias{createMAEFromCellranger}
-\title{Import a single cell ATAC-seq MultiAssayExperiment}
+\title{Import a single cell multiome MultiAssayExperiment}
 \usage{
 createMAEFromCellranger(
   cellranger.dirs,
@@ -15,28 +15,31 @@ createMAEFromCellranger(
   rna.name = "GeneExpressionMatrix",
   fragment.file = "atac_fragments.tsv.gz",
   h5.file = "filtered_feature_bc_matrix.h5",
-  barcode.file = "per_barcode_metrics.csv",
-  summary.file = "summary.csv",
+  barcodes.list = NULL,
+  consistent.barcodes = TRUE,
+  sample.annotation = NULL,
   filter.features.without.intervals = TRUE,
   BPPARAM = bpparam()
 )
 }
 \arguments{
-\item{cellranger.dirs}{Named character vector specifying a Cell Ranger
-scATAC-seq or multiome results directory. Vector names need to be sample
-names.}
+\item{cellranger.dirs}{Character vector specifying Cell Ranger multiome analysis directories}
 
-\item{sample.names}{A character vector specifying sample names. These will be 
-added in front of the barcodes}
+\item{sample.names}{Character vector specifying sample names corresponding
+to fragment.files}
 
 \item{output.dir}{String containing the directory where files should be
-output.}
+output}
 
 \item{tile.size}{Integer scalar specifying the size of the tiles in base
-pairs.}
+pairs}
 
 \item{seq.lengths}{Named integer vector containing the lengths of the
-reference sequences used for alignment.}
+reference sequences used for alignment. Vector names should correspond to
+the names of the sequences, in the same order of occurrence as in the
+fragment file. If \code{NULL}, this is obtained from the reference genome
+used by Cellranger (itself located by scanning the header of the fragment
+file).}
 
 \item{regions}{Genomic Ranges specifying gene coordinates for creating the
 gene score matrix.}
@@ -49,9 +52,14 @@ gene score matrix.}
 
 \item{h5.file}{Character string indicating the name of feature matrix h5 file}
 
-\item{barcode.file}{Character string indicating the name of the barcode file}
+\item{barcodes.list}{A named list with samples as names and each list element
+as a character vector of barcodes. If \code{NULL}, barcodes are extracted
+from h5.file}
 
-\item{summary.file}{Character string indicating the name of the summary file}
+\item{consistent.barcodes}{Logical scalar indicating whether only shared barcodes should be
+kept}
+
+\item{sample.annotation}{A data.frame containing sample annotation.}
 
 \item{filter.features.without.intervals}{Logical scalar indicating whether to remove
 .   features from the h5.files that do not have interval specified. Often these are
@@ -64,8 +72,26 @@ creation should be parallelized.}
 A \link[MultiAssayExperiment]{MultiAssayExperiment}.
 }
 \description{
-Import results from scATAC-seq or multiome Cell Ranger results directories
-into a MultiAssayExperiment.
+Import results from single cell multiome Cell Ranger results directories
+into a MultiAssayExperiment object.
+}
+\examples{
+# create mock cell range output files
+tmp_dir <- tempdir()
+temp_rna <- file.path(tmp_dir,"filtered_feature_bc_matrix.h5")
+mockCellRangerH5(temp_rna, cell.names = LETTERS)
+temp_atac <- file.path(tmp_dir,"atac_fragments.tsv.gz")
+mockFragmentFile(temp_atac, 
+                 c(chrA=1000, chrB=200000, chrC=200),
+                 num.fragments=100, 
+                 cell.names=LETTERS)
+seq.lengths <-  c(chrA=1000, chrB=200000, chrC=200)
+# create combined MAE
+mae <- createMAEFromCellranger(cellranger.dirs = tmp_dir,
+                               sample.names = "mock",
+                               seq.lengths = seq.lengths,
+                               consistent.barcodes = FALSE)
+file.remove(list.files(tmp_dir, pattern=".h5", full.names = TRUE))
 }
 \author{
 Natalie Fox, Xiaosai Yao

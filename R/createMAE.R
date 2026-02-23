@@ -59,33 +59,50 @@ createArbalistMAE <- function(atac.sce,
                               colData = DataFrame(row.names = unique(sampMap$primary)))
   
   if (!is.null(sample.annotation)) {
-    colData(mae) <- cbind(colData(mae), sample.annotation[rownames(colData(mae)), , drop =
-                                                            FALSE])
+    colData(mae) <- cbind(colData(mae), 
+                          sample.annotation[rownames(colData(mae)), , drop=FALSE])
   }
   
   return(mae)
 }
 
 
-#' Import a single cell ATAC-seq MultiAssayExperiment
+#' Import a single cell multiome MultiAssayExperiment
 #'
-#' Import results from scATAC-seq or multiome Cell Ranger results directories
-#' into a MultiAssayExperiment.
+#' Import results from single cell multiome Cell Ranger results directories
+#' into a MultiAssayExperiment object.
 #'
-#' @param cellranger.dirs Named character vector specifying a Cell Ranger
-#'   scATAC-seq or multiome results directory. Vector names need to be sample
-#'   names.
+#' @param cellranger.dirs Character vector specifying Cell Ranger multiome analysis directories
 #' @param fragment.file Character string indicating the name of the fragment file
 #' @param h5.file Character string indicating the name of feature matrix h5 file
-#' @param barcode.file Character string indicating the name of the barcode file
-#' @param summary.file Character string indicating the name of the summary file
+#' @param barcodes.list A named list with samples as names and each list element
+#'     as a character vector of barcodes. If \code{NULL}, barcodes are extracted
+#'     from h5.file
+#' @param consistent.barcodes Logical scalar indicating whether only shared barcodes should be
+#'     kept
 #' @inheritParams createArbalistMAE
 #' @inheritParams createRegionSCE
 #' @inheritParams createTileSCE
 #' @inheritParams createRNASCE
 #'
 #' @return A \link[MultiAssayExperiment]{MultiAssayExperiment}.
-#'
+#' @examples
+#' # create mock cell range output files
+#' tmp_dir <- tempdir()
+#' temp_rna <- file.path(tmp_dir,"filtered_feature_bc_matrix.h5")
+#' mockCellRangerH5(temp_rna, cell.names = LETTERS)
+#' temp_atac <- file.path(tmp_dir,"atac_fragments.tsv.gz")
+#' mockFragmentFile(temp_atac, 
+#'                  c(chrA=1000, chrB=200000, chrC=200),
+#'                  num.fragments=100, 
+#'                  cell.names=LETTERS)
+#' seq.lengths <-  c(chrA=1000, chrB=200000, chrC=200)
+#' # create combined MAE
+#' mae <- createMAEFromCellranger(cellranger.dirs = tmp_dir,
+#'                                sample.names = "mock",
+#'                                seq.lengths = seq.lengths,
+#'                                consistent.barcodes = FALSE)
+#' file.remove(list.files(tmp_dir, pattern=".h5", full.names = TRUE))
 #' @author Natalie Fox, Xiaosai Yao
 #' @export
 #'
@@ -99,19 +116,30 @@ createMAEFromCellranger <- function(cellranger.dirs,
                                     rna.name = "GeneExpressionMatrix",
                                     fragment.file = "atac_fragments.tsv.gz",
                                     h5.file = "filtered_feature_bc_matrix.h5",
-                                    barcode.file = "per_barcode_metrics.csv",
-                                    summary.file = "summary.csv",
+                                    barcodes.list = NULL,
+                                    consistent.barcodes = TRUE,
+                                    sample.annotation = NULL,
                                     filter.features.without.intervals = TRUE,
                                     BPPARAM = bpparam()) {
-  sample.names <- names(cellranger.dirs)
+  names(cellranger.dirs) <- sample.names 
   
   fragment.files <- .getFilesFromResDirs(cellranger.dirs, fragment.file)
+  names(fragment.files) <- sample.names
   
   filtered.feature.matrix.files <- .getFilesFromResDirs(cellranger.dirs, h5.file)
+  names(filtered.feature.matrix.files) <- sample.names
   
-  barcode.annotation.files <- .getFilesFromResDirs(cellranger.dirs, barcode.file)
   
-  sample.annotation.files <- .getFilesFromResDirs(cellranger.dirs, summary.file)
+  if (is.null(barcodes.list)) {
+    if (consistent.barcodes) {
+      barcodes.list <- list()
+      for (i in seq_along(filtered.feature.matrix.files)) {
+        h5_barcodes <- h5read(filtered.feature.matrix.files[i], 'matrix/barcodes')
+        barcodes.list[[sample.names[i]]] <- h5_barcodes
+      }
+    } 
+  }
+  
   
   if (is.null(regions)) {
     atac.sce <- createTileSCE(
@@ -120,7 +148,7 @@ createMAEFromCellranger <- function(cellranger.dirs,
       output.dir = output.dir,
       tile.size = tile.size,
       seq.lengths = seq.lengths,
-      barcodes.list = barcode.annotation.files,
+      barcodes.list = barcodes.list,
       BPPARAM = BPPARAM
     )
   } else {
@@ -129,7 +157,7 @@ createMAEFromCellranger <- function(cellranger.dirs,
       sample.names,
       regions = regions,
       output.dir = output.dir,
-      barcodes.list = barcode.annotation.files,
+      barcodes.list = barcodes.list,
       BPPARAM = BPPARAM
     )
     
@@ -148,7 +176,7 @@ createMAEFromCellranger <- function(cellranger.dirs,
   mae <- createArbalistMAE(
     atac.sce,
     rna.sce,
-    sample.annotation = sample.annotation.files,
+    sample.annotation = sample.annotation,
     rna.name =  rna.name,
     atac.name = atac.name
   )
@@ -158,7 +186,7 @@ createMAEFromCellranger <- function(cellranger.dirs,
 
 
 .getFilesFromResDirs <- function(res.dirs, file.name) {
-  selected.files <- lapply(res.dirs, function(x, file.name) {
+  selected.files <- lapply(res.dirs, function(x) {
     potential.file <- file.path(x, file.name)
     if (file.exists(potential.file)) {
       return(potential.file)
