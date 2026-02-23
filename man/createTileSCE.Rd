@@ -16,23 +16,26 @@ createTileSCE(
 )
 }
 \arguments{
-\item{fragment.files}{Vector of strings specifying fragment files. Vector
-names need to be sample names.}
+\item{fragment.files}{Character vector specifying fragment files}
 
-\item{sample.names}{A character vector specifying sample names. These will be 
-added in front of the barcodes}
+\item{sample.names}{Character vector specifying sample names corresponding
+to fragment.files}
 
 \item{output.dir}{String containing the directory where files should be
-output.}
+output}
 
 \item{tile.size}{Integer scalar specifying the size of the tiles in base
-pairs.}
+pairs}
 
 \item{seq.lengths}{Named integer vector containing the lengths of the
-reference sequences used for alignment.}
+reference sequences used for alignment. Vector names should correspond to
+the names of the sequences, in the same order of occurrence as in the
+fragment file. If \code{NULL}, this is obtained from the reference genome
+used by Cellranger (itself located by scanning the header of the fragment
+file).}
 
-\item{barcodes.list}{A List with samples as names and the values a vector of
-barcodes for that sample.}
+\item{barcodes.list}{A named list with samples as names and each list element
+as a character vector of barcodes. If \code{NULL}, all barcodes are extracted}
 
 \item{matrix.name}{Character string indicating the name of the matrix}
 
